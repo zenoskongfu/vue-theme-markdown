@@ -1,0 +1,842 @@
+/**
+ * Vue / VitePress inspired Markdown theme for VS Code
+ *
+ * Usage in .vscode/settings.json:
+ * {
+ *   "markdown.styles": ["./vue-markdown-theme.css"]
+ * }
+ *
+ * Recommended location:
+ *   <workspace>/vue-markdown-theme.css
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Theme tokens                                                               */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --vue-brand: #42b883;
+  --vue-brand-dark: #33a06f;
+  --vue-brand-soft: rgba(66, 184, 131, 0.14);
+
+  --vue-bg: #ffffff;
+  --vue-bg-soft: #f6f6f7;
+  --vue-bg-mute: #f1f1f1;
+  --vue-bg-code: #f6f8fa;
+
+  --vue-text-1: #213547;
+  --vue-text-2: #476582;
+  --vue-text-3: #8a8f98;
+
+  --vue-border: #e2e2e3;
+  --vue-divider: #e7e7e8;
+
+  --vue-code-text: #2c3e50;
+  --vue-code-inline-bg: rgba(142, 150, 170, 0.14);
+
+  --vue-tip: #42b883;
+  --vue-tip-soft: rgba(66, 184, 131, 0.12);
+  --vue-warning: #e7c000;
+  --vue-warning-soft: rgba(231, 192, 0, 0.12);
+  --vue-danger: #ed3c50;
+  --vue-danger-soft: rgba(237, 60, 80, 0.12);
+  --vue-info: #3b8eed;
+  --vue-info-soft: rgba(59, 142, 237, 0.12);
+
+  --vue-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --vue-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  --vue-radius-sm: 6px;
+  --vue-radius-md: 10px;
+  --vue-radius-lg: 14px;
+
+  --vue-content-width: 900px;
+}
+
+/* VS Code dark theme */
+body.vscode-dark,
+body.vscode-high-contrast:not(.vscode-high-contrast-light) {
+  --vue-brand: #42d392;
+  --vue-brand-dark: #35b982;
+  --vue-brand-soft: rgba(66, 211, 146, 0.15);
+
+  --vue-bg: #1b1b1f;
+  --vue-bg-soft: #242424;
+  --vue-bg-mute: #2f2f33;
+  --vue-bg-code: #202127;
+
+  --vue-text-1: rgba(255, 255, 245, 0.92);
+  --vue-text-2: rgba(235, 235, 245, 0.68);
+  --vue-text-3: rgba(235, 235, 245, 0.38);
+
+  --vue-border: #3c3f44;
+  --vue-divider: #2e2e32;
+
+  --vue-code-text: #e5e7eb;
+  --vue-code-inline-bg: rgba(101, 117, 133, 0.24);
+
+  --vue-tip-soft: rgba(66, 211, 146, 0.14);
+  --vue-warning-soft: rgba(231, 192, 0, 0.14);
+  --vue-danger-soft: rgba(237, 60, 80, 0.14);
+  --vue-info-soft: rgba(59, 142, 237, 0.14);
+
+  --vue-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --vue-shadow-2: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Fallback for non-VS Code preview environments */
+@media (prefers-color-scheme: dark) {
+  body:not(.vscode-light):not(.vscode-high-contrast-light) {
+    --vue-brand: #42d392;
+    --vue-brand-dark: #35b982;
+    --vue-brand-soft: rgba(66, 211, 146, 0.15);
+
+    --vue-bg: #1b1b1f;
+    --vue-bg-soft: #242424;
+    --vue-bg-mute: #2f2f33;
+    --vue-bg-code: #202127;
+
+    --vue-text-1: rgba(255, 255, 245, 0.92);
+    --vue-text-2: rgba(235, 235, 245, 0.68);
+    --vue-text-3: rgba(235, 235, 245, 0.38);
+
+    --vue-border: #3c3f44;
+    --vue-divider: #2e2e32;
+
+    --vue-code-text: #e5e7eb;
+    --vue-code-inline-bg: rgba(101, 117, 133, 0.24);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Document layout                                                            */
+/* -------------------------------------------------------------------------- */
+
+html {
+  scroll-behavior: smooth;
+  background: var(--vue-bg);
+}
+
+body,
+body.vscode-body {
+  box-sizing: border-box;
+  max-width: var(--vue-content-width);
+  margin: 0 auto;
+  padding: 48px 56px 80px;
+  color: var(--vue-text-1);
+  background: var(--vue-bg);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    Arial,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  overflow-wrap: break-word;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+::selection {
+  color: var(--vue-text-1);
+  background: var(--vue-brand-soft);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Typography                                                                 */
+/* -------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  position: relative;
+  color: var(--vue-text-1);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 24px;
+}
+
+h1 {
+  margin: 0 0 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--vue-divider);
+  font-size: 2.25rem;
+  font-weight: 750;
+}
+
+h1::after {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 72px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--vue-brand);
+  content: "";
+}
+
+h2 {
+  margin: 52px 0 20px;
+  padding-top: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--vue-divider);
+  font-size: 1.65rem;
+}
+
+h3 {
+  margin: 36px 0 16px;
+  font-size: 1.3rem;
+}
+
+h4 {
+  margin: 28px 0 12px;
+  font-size: 1.08rem;
+}
+
+h5,
+h6 {
+  margin: 24px 0 10px;
+  font-size: 1rem;
+}
+
+p {
+  margin: 16px 0;
+  color: var(--vue-text-2);
+}
+
+strong {
+  color: var(--vue-text-1);
+  font-weight: 650;
+}
+
+em {
+  color: var(--vue-text-2);
+}
+
+small {
+  color: var(--vue-text-3);
+}
+
+del {
+  color: var(--vue-text-3);
+  text-decoration-thickness: 1.5px;
+}
+
+mark {
+  margin: 0 2px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--vue-text-1);
+  background: rgba(255, 214, 10, 0.28);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Links                                                                      */
+/* -------------------------------------------------------------------------- */
+
+a {
+  position: relative;
+  color: var(--vue-brand-dark);
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition:
+    color 0.2s ease,
+    text-decoration-color 0.2s ease;
+}
+
+a:hover {
+  color: var(--vue-brand);
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+
+a:focus-visible {
+  border-radius: 4px;
+  outline: 3px solid var(--vue-brand-soft);
+  outline-offset: 2px;
+}
+
+/* Prevent heading anchor decorations from disturbing the layout */
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+  color: inherit;
+  font-weight: inherit;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Lists                                                                      */
+/* -------------------------------------------------------------------------- */
+
+ul,
+ol {
+  margin: 16px 0;
+  padding-left: 1.7em;
+  color: var(--vue-text-2);
+}
+
+li {
+  margin: 7px 0;
+  padding-left: 0.2em;
+}
+
+li::marker {
+  color: var(--vue-brand);
+  font-weight: 600;
+}
+
+li > ul,
+li > ol {
+  margin: 6px 0;
+}
+
+ul.contains-task-list {
+  padding-left: 0.25em;
+  list-style: none;
+}
+
+.task-list-item {
+  list-style: none;
+}
+
+.task-list-item input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0 0.55rem 0 0;
+  vertical-align: -0.12rem;
+  accent-color: var(--vue-brand);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Blockquotes and custom containers                                          */
+/* -------------------------------------------------------------------------- */
+
+blockquote {
+  margin: 24px 0;
+  padding: 14px 20px;
+  border-left: 4px solid var(--vue-brand);
+  border-radius: 0 var(--vue-radius-sm) var(--vue-radius-sm) 0;
+  color: var(--vue-text-2);
+  background: var(--vue-brand-soft);
+}
+
+blockquote > :first-child {
+  margin-top: 0;
+}
+
+blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+blockquote p {
+  color: inherit;
+}
+
+/*
+ * Optional VitePress-like custom containers.
+ *
+ * Markdown extensions may render:
+ * .custom-block.tip
+ * .custom-block.warning
+ * .custom-block.danger
+ * .custom-block.info
+ */
+.custom-block {
+  margin: 24px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--vue-border);
+  border-radius: var(--vue-radius-md);
+  background: var(--vue-bg-soft);
+}
+
+.custom-block .custom-block-title,
+.custom-block > strong:first-child {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--vue-text-1);
+  font-weight: 700;
+}
+
+.custom-block.tip {
+  border-color: var(--vue-tip);
+  background: var(--vue-tip-soft);
+}
+
+.custom-block.warning {
+  border-color: var(--vue-warning);
+  background: var(--vue-warning-soft);
+}
+
+.custom-block.danger {
+  border-color: var(--vue-danger);
+  background: var(--vue-danger-soft);
+}
+
+.custom-block.info {
+  border-color: var(--vue-info);
+  background: var(--vue-info-soft);
+}
+
+/* GitHub/VS Code markdown alerts */
+.markdown-alert {
+  margin: 24px 0;
+  padding: 14px 18px;
+  border-left: 4px solid var(--vue-info);
+  border-radius: 0 var(--vue-radius-sm) var(--vue-radius-sm) 0;
+  background: var(--vue-info-soft);
+}
+
+.markdown-alert-note,
+.markdown-alert-info {
+  border-left-color: var(--vue-info);
+  background: var(--vue-info-soft);
+}
+
+.markdown-alert-tip,
+.markdown-alert-important {
+  border-left-color: var(--vue-tip);
+  background: var(--vue-tip-soft);
+}
+
+.markdown-alert-warning {
+  border-left-color: var(--vue-warning);
+  background: var(--vue-warning-soft);
+}
+
+.markdown-alert-caution {
+  border-left-color: var(--vue-danger);
+  background: var(--vue-danger-soft);
+}
+
+.markdown-alert-title {
+  margin: 0 0 6px;
+  color: var(--vue-text-1);
+  font-weight: 700;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Inline code and code blocks                                                */
+/* -------------------------------------------------------------------------- */
+
+code,
+kbd,
+samp {
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    Menlo,
+    Monaco,
+    "Cascadia Code",
+    monospace;
+}
+
+:not(pre) > code {
+  margin: 0 2px;
+  padding: 0.18em 0.42em;
+  border: 1px solid color-mix(in srgb, var(--vue-border) 70%, transparent);
+  border-radius: 5px;
+  color: var(--vue-brand-dark);
+  background: var(--vue-code-inline-bg);
+  font-size: 0.88em;
+  font-weight: 550;
+  white-space: break-spaces;
+}
+
+pre {
+  position: relative;
+  margin: 24px 0;
+  padding: 20px 22px;
+  border: 1px solid var(--vue-border);
+  border-radius: var(--vue-radius-md);
+  background: var(--vue-bg-code);
+  box-shadow: var(--vue-shadow-1);
+  overflow: auto;
+  line-height: 1.65;
+  tab-size: 2;
+  -webkit-overflow-scrolling: touch;
+}
+
+pre code {
+  display: block;
+  min-width: max-content;
+  padding: 0;
+  border: 0;
+  color: var(--vue-code-text);
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 400;
+  white-space: pre;
+}
+
+/* Subtle top accent similar to modern Vue documentation */
+pre::before {
+  position: absolute;
+  top: 0;
+  left: 18px;
+  width: 38px;
+  height: 2px;
+  border-radius: 0 0 999px 999px;
+  background: var(--vue-brand);
+  content: "";
+}
+
+/* Let VS Code/Shiki/Highlight.js token colors remain effective */
+pre code span {
+  font-style: inherit;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Tables                                                                     */
+/* -------------------------------------------------------------------------- */
+
+table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 24px 0;
+  border: 1px solid var(--vue-border);
+  border-spacing: 0;
+  border-collapse: separate;
+  border-radius: var(--vue-radius-md);
+  background: var(--vue-bg);
+  box-shadow: var(--vue-shadow-1);
+  overflow-x: auto;
+}
+
+thead {
+  background: var(--vue-bg-soft);
+}
+
+th,
+td {
+  min-width: 110px;
+  padding: 12px 16px;
+  border-right: 1px solid var(--vue-border);
+  border-bottom: 1px solid var(--vue-border);
+  color: var(--vue-text-2);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--vue-text-1);
+  font-size: 0.93rem;
+  font-weight: 650;
+}
+
+tr > :last-child {
+  border-right: 0;
+}
+
+tbody tr:last-child > td {
+  border-bottom: 0;
+}
+
+tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--vue-bg-soft) 58%, transparent);
+}
+
+tbody tr:hover {
+  background: var(--vue-brand-soft);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Media                                                                      */
+/* -------------------------------------------------------------------------- */
+
+img,
+video,
+svg {
+  max-width: 100%;
+}
+
+img {
+  display: block;
+  height: auto;
+  margin: 24px auto;
+  border-radius: var(--vue-radius-md);
+  box-shadow: var(--vue-shadow-2);
+}
+
+a img {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+a:hover img {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+figure {
+  margin: 28px 0;
+}
+
+figure img {
+  margin-bottom: 10px;
+}
+
+figcaption {
+  color: var(--vue-text-3);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Other elements                                                             */
+/* -------------------------------------------------------------------------- */
+
+hr {
+  height: 1px;
+  margin: 42px 0;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--vue-divider) 12%,
+    var(--vue-divider) 88%,
+    transparent
+  );
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  margin: 0 0.12em;
+  padding: 0.15em 0.45em;
+  border: 1px solid var(--vue-border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  color: var(--vue-text-1);
+  background: var(--vue-bg-soft);
+  box-shadow: 0 1px 0 var(--vue-border);
+  font-size: 0.82em;
+  line-height: 1.35;
+  text-align: center;
+}
+
+details {
+  margin: 22px 0;
+  padding: 14px 18px;
+  border: 1px solid var(--vue-border);
+  border-radius: var(--vue-radius-md);
+  background: var(--vue-bg-soft);
+}
+
+summary {
+  color: var(--vue-text-1);
+  font-weight: 650;
+  cursor: pointer;
+  user-select: none;
+}
+
+summary:hover {
+  color: var(--vue-brand-dark);
+}
+
+details[open] summary {
+  margin-bottom: 12px;
+}
+
+abbr[title] {
+  text-decoration-color: var(--vue-brand);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+sup,
+sub {
+  line-height: 0;
+}
+
+.footnotes {
+  margin-top: 48px;
+  padding-top: 22px;
+  border-top: 1px solid var(--vue-divider);
+  color: var(--vue-text-3);
+  font-size: 0.9rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Mermaid, math and diagrams                                                 */
+/* -------------------------------------------------------------------------- */
+
+.mermaid,
+.katex-display,
+.math,
+svg[id^="mermaid"] {
+  margin: 28px auto;
+}
+
+.mermaid {
+  padding: 20px;
+  border: 1px solid var(--vue-border);
+  border-radius: var(--vue-radius-md);
+  background: var(--vue-bg-soft);
+  overflow-x: auto;
+}
+
+.katex-display {
+  padding: 14px 18px;
+  border-radius: var(--vue-radius-md);
+  background: var(--vue-bg-soft);
+  overflow-x: auto;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Scrollbars                                                                 */
+/* -------------------------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--vue-text-3) 55%, transparent);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--vue-text-2) 70%, transparent);
+  background-clip: padding-box;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  body,
+  body.vscode-body {
+    padding: 28px 22px 56px;
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+  }
+
+  h2 {
+    margin-top: 42px;
+    font-size: 1.45rem;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+  }
+
+  pre {
+    margin-right: -8px;
+    margin-left: -8px;
+    padding: 18px 16px;
+    border-radius: 8px;
+  }
+
+  th,
+  td {
+    min-width: 90px;
+    padding: 10px 12px;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Printing                                                                   */
+/* -------------------------------------------------------------------------- */
+
+@media print {
+  :root {
+    --vue-bg: #ffffff;
+    --vue-bg-soft: #f6f6f7;
+    --vue-bg-code: #f6f8fa;
+    --vue-text-1: #213547;
+    --vue-text-2: #476582;
+    --vue-text-3: #6b7280;
+    --vue-border: #d9d9dc;
+    --vue-divider: #dedee0;
+  }
+
+  body,
+  body.vscode-body {
+    max-width: none;
+    padding: 0;
+    color: var(--vue-text-1);
+    background: #ffffff;
+    font-size: 11pt;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+
+  pre,
+  blockquote,
+  table,
+  img,
+  .custom-block,
+  .markdown-alert {
+    break-inside: avoid;
+  }
+
+  a {
+    color: var(--vue-text-1);
+    text-decoration: underline;
+  }
+
+  a[href^="http"]::after {
+    color: var(--vue-text-3);
+    font-size: 0.8em;
+    content: " (" attr(href) ")";
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Accessibility                                                              */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

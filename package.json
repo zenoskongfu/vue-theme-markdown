@@ -1,0 +1,42 @@
+{
+  "name": "vue-theme-markdown",
+  "displayName": "Vue Green Markdown Preview",
+  "description": "A clean Vue and VitePress inspired theme for VS Code's built-in Markdown preview.",
+  "version": "0.1.1",
+  "publisher": "zenoschen",
+  "icon": "images/icon.png",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "markdown",
+    "preview",
+    "theme",
+    "vue",
+    "vitepress"
+  ],
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "galleryBanner": {
+    "color": "#213547",
+    "theme": "dark"
+  },
+  "contributes": {
+    "markdown.previewStyles": [
+      "./v-green.css"
+    ]
+  },
+  "scripts": {
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.9.2"
+  }
+}

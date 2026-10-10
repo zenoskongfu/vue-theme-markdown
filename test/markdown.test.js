@@ -17,6 +17,26 @@ test('settings do not change headings, links, tables, code, or token source maps
   assert.deepEqual(tokens.map(token => token.map), maps);
 });
 
+test('cached paragraphs switch novel palettes without leaking indentation attributes into Vue', () => {
+  let theme = 'paper';
+  const md = extendMarkdownIt(new MarkdownIt(), () => ({ theme, fontSize: 14, tableRowHeight: 36 }));
+  const prose = '普通段落。\n\n\u3000\u3000已有缩进的段落。\n\n> 引用。\n\n- 列表。';
+  const tokens = md.parse(prose, {});
+  const before = JSON.stringify(tokens);
+  let html = md.renderer.render(tokens, md.options, {});
+  assert.match(html, /--vue-bg:#f6f1e7;/);
+  assert.match(html, /<p data-reading-indent="existing">\u3000\u3000/);
+  assert.equal(JSON.stringify(tokens), before);
+  theme = 'night';
+  html = md.renderer.render(tokens, md.options, {});
+  assert.match(html, /--vue-bg:#202124;/);
+  theme = 'vue';
+  html = md.renderer.render(tokens, md.options, {});
+  assert.doesNotMatch(html, /data-reading-indent|--reading-font/);
+  assert.equal(html.replace(/^<style[^>]*>.*?<\/style>\n/, ''), new MarkdownIt().render(prose));
+  assert.equal(JSON.stringify(tokens), before);
+});
+
 test('cached tokens use changed settings and the current preview resource', () => {
   let size = 13;
   const resources = [];

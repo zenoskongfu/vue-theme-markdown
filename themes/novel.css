@@ -1,0 +1,114 @@
+/* Shared long-form layout; palettes and typography come from the local catalog. */
+body.vscode-body {
+  color-scheme: var(--reading-color-scheme);
+  font-family: var(--reading-font);
+  line-height: var(--reading-line-height);
+  padding: 56px 60px 96px;
+  letter-spacing: 0.015em;
+}
+
+body.vscode-body h1,
+body.vscode-body h2 {
+  padding: 0;
+  border: 0;
+  text-align: var(--reading-heading-align);
+  font-family: var(--reading-font);
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+}
+
+body.vscode-body h1 {
+  margin: 0 0 2.4em;
+  font-size: 1.65rem;
+}
+
+body.vscode-body h2 {
+  margin: 3.2em 0 1.8em;
+  font-size: 1.4rem;
+}
+
+body.vscode-body h3 {
+  margin: 2.2em 0 1.2em;
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
+}
+
+body.vscode-body h1::after,
+body.vscode-body pre::before {
+  display: none;
+}
+
+body.vscode-body > p,
+body.vscode-body .markdown-body > p {
+  margin: 0 0 1.1em;
+  text-indent: 2em;
+  line-height: var(--reading-line-height);
+}
+
+/* Novels often already contain full-width spaces; preserve that indentation. */
+body.vscode-body p[data-reading-indent="existing"] {
+  text-indent: 0;
+}
+
+body.vscode-body blockquote {
+  margin: 1.6em 0;
+  border-left-width: 2px;
+  border-radius: 0;
+  background: var(--vue-bg-soft);
+}
+
+body.vscode-body blockquote p {
+  text-indent: 0;
+}
+
+body.vscode-body hr {
+  height: 1px;
+  max-width: 120px;
+  margin: 2.4em auto;
+  background: var(--vue-border);
+}
+
+/* Respect explicit high-contrast editor themes while retaining novel layout. */
+body.vscode-body.vscode-high-contrast,
+body.vscode-body.vscode-high-contrast-light {
+  --vue-bg: var(--vscode-editor-background, #000000);
+  --vue-bg-soft: var(--vscode-editor-background, #000000);
+  --vue-bg-mute: var(--vscode-editor-background, #000000);
+  --vue-bg-code: var(--vscode-editor-background, #000000);
+  --vue-text-1: var(--vscode-editor-foreground, #ffffff);
+  --vue-text-2: var(--vscode-editor-foreground, #ffffff);
+  --vue-text-3: var(--vscode-editor-foreground, #ffffff);
+  --vue-code-text: var(--vscode-editor-foreground, #ffffff);
+  --vue-code-inline-bg: var(--vscode-editor-background, #000000);
+  --vue-border: var(--vscode-contrastBorder, #ffffff);
+  --vue-divider: var(--vscode-contrastBorder, #ffffff);
+  --vue-brand: var(--vscode-textLink-foreground, #ffff00);
+  --vue-brand-dark: var(--vscode-textLink-foreground, #ffff00);
+  --vue-brand-soft: var(--vscode-editor-selectionBackground, #444444);
+  color-scheme: dark;
+}
+
+body.vscode-body.vscode-high-contrast-light {
+  --vue-bg: var(--vscode-editor-background, #ffffff);
+  --vue-bg-soft: var(--vscode-editor-background, #ffffff);
+  --vue-bg-mute: var(--vscode-editor-background, #ffffff);
+  --vue-bg-code: var(--vscode-editor-background, #ffffff);
+  --vue-text-1: var(--vscode-editor-foreground, #000000);
+  --vue-text-2: var(--vscode-editor-foreground, #000000);
+  --vue-text-3: var(--vscode-editor-foreground, #000000);
+  --vue-code-text: var(--vscode-editor-foreground, #000000);
+  --vue-code-inline-bg: var(--vscode-editor-background, #ffffff);
+  --vue-border: var(--vscode-contrastBorder, #000000);
+  --vue-divider: var(--vscode-contrastBorder, #000000);
+  --vue-brand: var(--vscode-textLink-foreground, #0000aa);
+  --vue-brand-dark: var(--vscode-textLink-foreground, #0000aa);
+  --vue-brand-soft: var(--vscode-editor-selectionBackground, #cccccc);
+  color-scheme: light;
+}
+
+@media (max-width: 760px) {
+  body.vscode-body { padding: 32px 24px 64px; }
+  body.vscode-body h1 { font-size: 1.5rem; }
+  body.vscode-body h2 { font-size: 1.3rem; }
+}

@@ -1,8 +1,8 @@
 {
   "name": "vue-theme-markdown",
-  "displayName": "Vue Green Markdown Preview",
-  "description": "A clean Vue and VitePress inspired theme for VS Code's built-in Markdown preview.",
-  "version": "0.2.0",
+  "displayName": "阅境 Markdown",
+  "description": "Novel reading themes and a Vue-inspired document theme for Markdown previews, with sidebar controls. 小说主题、字号与表格行高设置。",
+  "version": "0.3.0",
   "publisher": "zenoschen",
   "author": "zenoschen",
   "icon": "images/icon.png",
@@ -25,8 +25,10 @@
     "markdown",
     "preview",
     "theme",
-    "vue",
-    "vitepress"
+    "novel",
+    "reading",
+    "小说",
+    "vue"
   ],
   "extensionKind": [
     "ui",
@@ -37,7 +39,7 @@
     "onLanguage:markdown"
   ],
   "galleryBanner": {
-    "color": "#213547",
+    "color": "#20382c",
     "theme": "dark"
   },
   "contributes": {
@@ -46,7 +48,7 @@
       "./v-green.css"
     ],
     "configuration": {
-      "title": "Vue Green Markdown Preview",
+      "title": "阅境 Markdown",
       "properties": {
         "vueGreenMarkdown.fontSize": {
           "type": "integer",
@@ -63,6 +65,36 @@
           "maximum": 120,
           "scope": "resource",
           "description": "Minimum table row height in pixels. Cells stay on one line and wide tables scroll horizontally. Explicit line breaks and taller content can increase the height."
+        },
+        "vueGreenMarkdown.theme": {
+          "type": "string",
+          "default": "vue",
+          "scope": "resource",
+          "enum": [
+            "vue",
+            "paper",
+            "bamboo",
+            "clean",
+            "parchment",
+            "night"
+          ],
+          "enumItemLabels": [
+            "Vue 文档",
+            "暖纸",
+            "青竹",
+            "雾白",
+            "古卷",
+            "墨夜"
+          ],
+          "enumDescriptions": [
+            "Vue documentation theme; follows the editor appearance.",
+            "Warm paper with Songti typography.",
+            "Jinjiang-inspired pale green reading page.",
+            "Fanqie-inspired clean gray reading page.",
+            "Parchment with classical Kaiti typography.",
+            "Fixed dark palette for night reading."
+          ],
+          "description": "Markdown reading theme. Novel themes use their own palettes independently of the editor appearance; explicit high-contrast editor themes retain accessible editor colors."
         }
       }
     },
@@ -70,7 +102,7 @@
       "activitybar": [
         {
           "id": "vueGreenMarkdown",
-          "title": "Vue Markdown",
+          "title": "阅境 Markdown",
           "icon": "images/sidebar.svg"
         }
       ]
@@ -80,15 +112,15 @@
         {
           "type": "webview",
           "id": "vueGreenMarkdown.settings",
-          "name": "Preview Settings"
+          "name": "阅读设置"
         }
       ]
     },
     "commands": [
       {
         "command": "vueGreenMarkdown.openSettings",
-        "title": "Open Preview Settings",
-        "category": "Vue Markdown"
+        "title": "打开阅读设置",
+        "category": "阅境 Markdown"
       }
     ]
   },

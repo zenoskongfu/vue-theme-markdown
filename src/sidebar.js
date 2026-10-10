@@ -2,7 +2,8 @@
 
 const vscode = require('vscode');
 const { randomBytes } = require('node:crypto');
-const { SECTION, LIMITS, readSettings, validateSettings, getSaveTarget } = require('./settings');
+const { SECTION, DEFAULTS, readSettings, validateSettings, getSaveTarget } = require('./settings');
+const { THEMES, validateTheme } = require('./themes');
 
 class SettingsViewProvider {
   constructor(extensionUri) {
@@ -28,7 +29,7 @@ class SettingsViewProvider {
     const receive = view.webview.onDidReceiveMessage(message => {
       if (message?.type === 'ready') {
         this.update();
-      } else if (message?.type === 'save' || message?.type === 'reset') {
+      } else if (['save', 'reset', 'theme'].includes(message?.type)) {
         void this.save(message);
       }
     });
@@ -73,17 +74,17 @@ class SettingsViewProvider {
       if (message.resource !== (resource?.toString() ?? null)) {
         throw new Error('当前 Markdown 文件已切换，请重新确认设置。');
       }
-      const values = message.type === 'reset'
-        ? Object.fromEntries(Object.entries(LIMITS).map(([key, limit]) => [key, limit.default]))
-        : validateSettings(message.settings);
+      const values = message.type === 'reset' ? DEFAULTS
+        : message.type === 'theme' ? { theme: validateTheme(message.theme) }
+          : validateSettings(message.settings);
       const { target } = getSaveTarget(vscode, resource);
       const config = vscode.workspace.getConfiguration(SECTION, resource);
       for (const [key, value] of Object.entries(values)) {
         await config.update(key, value, target);
       }
-      this.post({ type: 'saved', ...this.state(), reset: message.type === 'reset' });
+      this.post({ type: 'saved', ...this.state(), action: message.type });
     } catch (error) {
-      this.post({ type: 'error', message: error.message, ...this.state() });
+      this.post({ type: 'error', message: error.message, ...this.state(), action: message.type });
     } finally {
       this.saving = false;
       this.update();
@@ -94,28 +95,42 @@ class SettingsViewProvider {
     const nonce = randomBytes(16).toString('hex');
     const script = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'media', 'sidebar.js'));
     const style = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'media', 'sidebar.css'));
+    const cards = THEMES.map(theme => `<label class="theme-choice">
+      <input id="theme-${theme.id}" type="radio" name="theme" value="${theme.id}" data-name="${theme.name}">
+      <span class="theme-card">
+        <span class="theme-sample theme-${theme.id}" aria-hidden="true"><span>阅</span><i></i><i></i></span>
+        <span class="theme-name">${theme.name}</span><span class="theme-description">${theme.description}</span>
+      </span>
+    </label>`).join('\n');
+    const swatches = THEMES.map(theme => `.theme-${theme.id}{--sample-bg:${theme.background};--sample-text:${theme.foreground};--sample-accent:${theme.accent};}`).join('\n');
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
   <link rel="stylesheet" href="${style}">
-  <title>Markdown 预览设置</title>
+  <style nonce="${nonce}">${swatches}</style>
+  <title>阅境 Markdown 阅读设置</title>
 </head>
 <body>
-  <h1>Markdown 预览</h1>
-  <p class="description">调整阅读大小，让长表格更紧凑。</p>
+  <h1>阅境 Markdown</h1>
+  <p class="description">为故事选一张书页，也为文档留一份清晰。</p>
   <p id="file" class="context"></p>
   <form id="settings">
     <fieldset disabled>
+      <section class="themes" aria-labelledby="themes-label">
+        <h2 id="themes-label">阅读主题</h2>
+        <p class="help">点击立即切换并保存。小说主题使用两字缩进和舒展行距。</p>
+        <div class="theme-grid" role="radiogroup" aria-labelledby="themes-label">${cards}</div>
+      </section>
       <div class="field">
         <label for="fontSize">正文字号 <span>px</span></label>
         <div class="controls">
           <input id="fontSizeRange" type="range" min="10" max="32" step="1" value="14" aria-label="正文字号">
           <input id="fontSize" type="number" min="10" max="32" step="1" value="14" required aria-describedby="fontHelp">
         </div>
-        <p id="fontHelp" class="help">标题与代码会按比例缩放，默认 14px。</p>
+        <p id="fontHelp" class="help">标题与代码会按比例缩放，默认 14px。切换主题保留你的字号。</p>
       </div>
       <div class="field">
         <label for="tableRowHeight">表格行高 <span>px</span></label>

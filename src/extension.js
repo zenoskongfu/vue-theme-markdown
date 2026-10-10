@@ -19,7 +19,7 @@ function activate(context) {
       clearTimeout(refreshTimer);
       refreshTimer = setTimeout(() => {
         vscode.commands.executeCommand('markdown.preview.refresh').then(undefined, error => {
-          vscode.window.showErrorMessage(`Vue Markdown 预览刷新失败：${error.message}`);
+          vscode.window.showErrorMessage(`阅境 Markdown 预览刷新失败：${error.message}`);
         });
       }, 100);
     }),

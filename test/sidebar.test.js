@@ -8,7 +8,7 @@ const { createRequire } = require('node:module');
 const path = require('node:path');
 
 function sidebar(failOnKey) {
-  const values = { fontSize: 14, tableRowHeight: 36 };
+  const values = { theme: 'vue', fontSize: 14, tableRowHeight: 36 };
   const writes = [];
   const messages = [];
   const vscode = {
@@ -50,20 +50,32 @@ test('sidebar rejects invalid input and a stale document before writing settings
 
 test('Apply and Reset persist values before reporting success', async () => {
   const { provider, writes, values, messages } = sidebar();
-  await provider.save({ type: 'save', resource: null, settings: { fontSize: 13, tableRowHeight: 30 } });
-  assert.deepEqual(values, { fontSize: 13, tableRowHeight: 30 });
+  await provider.save({ type: 'save', resource: null, settings: { theme: 'paper', fontSize: 13, tableRowHeight: 30 } });
+  assert.deepEqual(values, { theme: 'paper', fontSize: 13, tableRowHeight: 30 });
   assert.ok(writes.every(write => write.target === 1));
   assert.equal(messages.filter(message => message.type === 'saved').length, 1);
   await provider.save({ type: 'reset', resource: null });
-  assert.deepEqual(values, { fontSize: 14, tableRowHeight: 36 });
+  assert.deepEqual(values, { theme: 'vue', fontSize: 14, tableRowHeight: 36 });
 });
 
 test('failed writes report the actual partial configuration and keep controls recoverable', async () => {
   const { provider, messages } = sidebar('tableRowHeight');
-  await provider.save({ type: 'save', resource: null, settings: { fontSize: 13, tableRowHeight: 30 } });
+  await provider.save({ type: 'save', resource: null, settings: { theme: 'night', fontSize: 13, tableRowHeight: 30 } });
   const error = messages.find(message => message.type === 'error');
   assert.ok(error);
-  assert.deepEqual(error.settings, { fontSize: 13, tableRowHeight: 36 });
+  assert.deepEqual(error.settings, { theme: 'night', fontSize: 13, tableRowHeight: 36 });
   assert.equal(messages.some(message => message.type === 'saved'), false);
   assert.equal(provider.saving, false);
+});
+
+test('instant theme switching only persists the theme and rejects invalid or stale requests', async () => {
+  const { provider, values, writes, messages } = sidebar();
+  await provider.save({ type: 'theme', theme: 'bamboo', resource: null, settings: { fontSize: 22, tableRowHeight: 60 } });
+  assert.deepEqual(writes, [{ key: 'theme', value: 'bamboo', target: 1 }]);
+  assert.deepEqual(values, { theme: 'bamboo', fontSize: 14, tableRowHeight: 36 });
+  assert.equal(messages.find(message => message.type === 'saved').action, 'theme');
+  await provider.save({ type: 'theme', theme: 'invalid', resource: null });
+  await provider.save({ type: 'theme', theme: 'paper', resource: 'file:///other.md' });
+  assert.equal(writes.length, 1);
+  assert.equal(messages.filter(message => message.type === 'error').length, 2);
 });

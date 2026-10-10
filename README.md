@@ -1,60 +1,78 @@
-# Vue Green Markdown Preview
+# 阅境 Markdown · Reading Realm
 
-A polished Vue and VitePress inspired theme for VS Code's built-in Markdown preview. It styles Markdown automatically after installation—no workspace settings or commands are required.
+在 VS Code 的内置 Markdown 预览中阅读小说，也能查看普通文档。提供五套小说阅读主题和原有的 Vue 文档主题，在侧边栏切换主题、设置字号与表格行高。
 
-## Features
+## 使用
 
-- Vue-inspired green palette, typography, spacing, and content layout
-- Matching light, dark, and high-contrast theme support
-- Styled headings, links, lists, tables, blockquotes, code, images, and task lists
-- GitHub-style Markdown alerts and VitePress-style custom containers
-- Responsive layouts, print styles, and reduced-motion support
-- Sidebar controls for preview font size and table row height
-- Single-line table cells with horizontal scrolling for wide tables
-- No telemetry or network access
+1. 安装并启用扩展，打开一个 Markdown 文件。
+2. 使用 **Markdown: Open Preview** 打开预览（macOS：`Cmd+Shift+V`；Windows/Linux：`Ctrl+Shift+V`）。
+3. 点击活动栏的书本图标 **阅境 Markdown**，或运行 **阅境 Markdown: 打开阅读设置**。
+4. 点击主题卡片即可保存并刷新预览。字号与表格行高可通过滑块或数字框调整，再点击 **应用设置**。
 
-## Usage
+## 阅读主题
 
-1. Install and enable the extension.
-2. Open a Markdown file.
-3. Run **Markdown: Open Preview** (`Ctrl+Shift+V` on Windows/Linux or `Cmd+Shift+V` on macOS).
+| 主题 | 配色与字体 | 排版 |
+| --- | --- | --- |
+| **Vue 文档** | Vue 绿色装饰，跟随 VS Code 的深浅色主题 | 保留原有文档、代码和表格样式 |
+| **暖纸** | 米色书页，宋体 | 居中章节标题，2.05 倍行距 |
+| **青竹** | 晋江阅读页风格的浅绿底，宋体 | 居中章节标题，2.1 倍行距 |
+| **雾白** | 番茄阅读页风格的浅灰底，黑体 | 左对齐标题，2 倍行距 |
+| **古卷** | 纵横纸色选项启发的古典书页，楷体 | 居中章节标题，2.15 倍行距 |
+| **墨夜** | 深灰底，柔和灰字 | 居中章节标题，2.05 倍行距 |
 
-The theme is applied to every built-in Markdown preview. If another extension also contributes preview styles, the final appearance may depend on the order in which VS Code loads those styles.
+小说主题使用两字首行缩进、较宽的段落间距与简洁章节标题。已有全角空格的段落保留原有缩进；引用、列表、代码和表格使用各自的 Markdown 排版。字体使用本机字体，并提供回退字体，无需下载。
 
-## Preview settings
+小说主题的配色独立于编辑器深浅色设置；**Vue 文档**仍跟随编辑器。显式高对比度主题使用编辑器的高对比度颜色，同时保留小说排版。打印使用白底和 11pt 正文。
 
-Click the **Vue Markdown** icon in the Activity Bar to open **Preview Settings**, or run **Vue Markdown: Open Preview Settings** from the Command Palette. Adjust the sliders or enter pixel values, then click **应用设置** (Apply). Open previews refresh automatically. **恢复默认** (Reset) restores 14px text and 36px table rows.
+设计参考了[晋江文学城](https://www.jjwxc.net/onebook.php?novelid=3907377&chapterid=1)、[番茄小说](https://fanqienovel.com/reader/7069952706521236001)和[纵横中文网](https://read.zongheng.com/chapter/987598/60986533.html)的公开阅读页及阅读设置。配色与样式由本扩展独立实现。
 
-| Setting | Default | Range | Effect |
-| --- | --- | --- | --- |
-| `vueGreenMarkdown.fontSize` | 14px | 10–32px | Scales body text, headings, and code in the preview. |
-| `vueGreenMarkdown.tableRowHeight` | 36px | 24–120px | Sets the minimum table row height, including the header. |
+## 设置
 
-Both settings are also available in VS Code Settings. For example:
+| 设置项 | 默认值 | 范围 |
+| --- | --- | --- |
+| `vueGreenMarkdown.theme` | `vue` | `vue`、`paper`、`bamboo`、`clean`、`parchment`、`night` |
+| `vueGreenMarkdown.fontSize` | 14px | 10–32px |
+| `vueGreenMarkdown.tableRowHeight` | 36px | 24–120px |
+
+例如，为小说启用暖纸主题：
 
 ```json
 {
-  "vueGreenMarkdown.fontSize": 13,
-  "vueGreenMarkdown.tableRowHeight": 30
+  "vueGreenMarkdown.theme": "paper",
+  "vueGreenMarkdown.fontSize": 16,
+  "vueGreenMarkdown.tableRowHeight": 32
 }
 ```
 
-Settings use VS Code's user, workspace, and workspace-folder configuration. The sidebar follows the most recently active Markdown file, displays where it will save, and updates the most specific scope already configured for either setting; otherwise it saves to user settings. This keeps existing workspace overrides effective. Each preview reads the settings for its own file.
+标题与代码字号按正文设置缩放。切换主题保留字号与行高，也保留侧边栏中尚未应用的字号修改。**恢复默认**恢复 Vue 文档主题、14px 正文和 36px 表格行高。
 
-Table text, including inline code, does not wrap automatically. Wide tables scroll horizontally. Explicit `<br>` elements, images, and content taller than the configured minimum still increase row height. Narrow previews keep the configured font size and row height. Print layout retains its dedicated 11pt body text.
+表格文字与行内代码不自动换行，宽表格可横向滚动。行高是最小高度；显式 `<br>` 换行、图片或较高内容仍会撑高行。
 
-## Supported custom blocks
+设置支持用户、工作区和文件夹范围。侧边栏跟随最近激活的 Markdown 文件，并显示保存位置；任意一项已有工作区或文件夹设置时，侧边栏在最具体的已有范围保存，否则保存到用户设置。每个预览按自己的文件读取设置。
 
-The stylesheet includes presentation for common generated HTML such as `.custom-block.tip`, `.custom-block.warning`, `.custom-block.danger`, `.custom-block.info`, and `.markdown-alert`. Rendering custom syntax into those elements still requires the corresponding Markdown extension.
+## 升级与兼容
 
-## Privacy
+原 **Vue Green Markdown Preview** 更名为 **阅境 Markdown**。扩展 ID `zenoschen.vue-theme-markdown` 与设置项前缀 `vueGreenMarkdown` 保持兼容，现有用户可以直接升级并保留设置。未配置新主题时继续使用 Vue 文档主题。
 
-The extension runs local code to show the settings sidebar, save VS Code configuration, and apply numeric sizing values to Markdown previews. It does not collect data or make network requests. It does not modify Markdown files.
+扩展作用于 VS Code 内置 Markdown 预览；其他扩展同时贡献预览样式时，最终样式可能受加载顺序影响。
 
-## Development
+## 自定义块
 
-Run `npm ci`, then `npm test` for configuration and Markdown rendering tests. `npm run test:layout` checks responsive layout in Chrome; set `CHROME_EXECUTABLE` if Chrome is installed outside the standard macOS location. Run `npm run test:integration` for tests in VS Code, optionally setting `VSCODE_EXECUTABLE` to an installed executable to avoid a download. `npm run package` builds a VSIX.
+保留 `.custom-block.tip`、`.custom-block.warning`、`.custom-block.danger`、`.custom-block.info` 和 `.markdown-alert` 等样式。自定义语法的 HTML 渲染仍由相应 Markdown 扩展提供。
 
-## License
+## 隐私
 
-MIT. See the `LICENSE` file included with the extension.
+所有主题与控制逻辑均在本地运行。扩展保存 VS Code 配置并刷新预览，不收集数据、不发起网络请求，也不修改 Markdown 文件内容。
+
+## 开发
+
+运行 `npm ci` 安装开发依赖。
+
+- `npm test`：设置校验、配置范围、Markdown 渲染与侧边栏保存测试。
+- `npm run test:layout`：Chrome 中验证小说主题、深浅色与高对比度、窄窗口、表格、打印和侧边栏交互。Chrome 不在 macOS 默认位置时，设置 `CHROME_EXECUTABLE`。
+- `npm run test:integration`：在真实 VS Code 中验证激活、主题与字号设置、持久化和预览。可设置 `VSCODE_EXECUTABLE` 指向已安装的程序。
+- `npm run package`：生成 VSIX。
+
+## 许可证
+
+MIT，详见随扩展提供的 `LICENSE`。

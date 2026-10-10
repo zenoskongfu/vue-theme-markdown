@@ -14,13 +14,16 @@
     status.classList.toggle('error', error);
   }
 
-  function populate(message) {
+  function populate(message, preserveDraft = false) {
     resource = message.resource;
-    for (const key of keys) {
-      document.getElementById(key).value = message.settings[key];
-      document.getElementById(`${key}Range`).value = message.settings[key];
+    if (!preserveDraft) {
+      for (const key of keys) {
+        document.getElementById(key).value = message.settings[key];
+        document.getElementById(`${key}Range`).value = message.settings[key];
+      }
+      dirty = false;
     }
-    dirty = false;
+    document.getElementById(`theme-${message.settings.theme}`).checked = true;
   }
 
   for (const key of keys) {
@@ -38,14 +41,24 @@
     });
   }
 
-  function send(type) {
+  function send(type, theme) {
     saving = true;
     fieldset.disabled = true;
     showStatus('正在保存…');
     vscode.postMessage({
       type,
       resource,
-      settings: Object.fromEntries(keys.map(key => [key, Number(document.getElementById(key).value)])),
+      theme,
+      settings: {
+        theme: form.querySelector('input[name="theme"]:checked').value,
+        ...Object.fromEntries(keys.map(key => [key, Number(document.getElementById(key).value)])),
+      },
+    });
+  }
+
+  for (const radio of form.querySelectorAll('input[name="theme"]')) {
+    radio.addEventListener('change', () => {
+      if (radio.checked && !saving) send('theme', radio.value);
     });
   }
 
@@ -64,8 +77,8 @@
     document.getElementById('scope').textContent = `保存到：${message.scope}`;
     const changedFile = message.resource !== resource;
     if (message.type === 'state') {
-      if (!saving && (!dirty || changedFile)) {
-        populate(message);
+      if (!saving) {
+        populate(message, dirty && !changedFile);
         fieldset.disabled = false;
         if (changedFile) showStatus('已读取当前文件的设置。');
         else if (status.textContent === '正在读取设置…') showStatus('点击“应用设置”保存，并刷新已打开的预览。');
@@ -73,8 +86,11 @@
     } else {
       saving = false;
       fieldset.disabled = false;
-      populate(message);
-      showStatus(message.type === 'error' ? message.message : message.reset ? '已恢复默认，正在刷新预览。' : '已保存，正在刷新预览。', message.type === 'error');
+      populate(message, message.action === 'theme' && dirty && !changedFile);
+      const themeName = document.getElementById(`theme-${message.settings.theme}`).dataset.name;
+      const saved = message.action === 'theme' ? `已切换为“${themeName}”。${dirty ? '字号和行高的修改仍待应用。' : '预览正在刷新。'}`
+        : message.action === 'reset' ? '已恢复 Vue 文档主题、14px 字号和 36px 行高。' : '已保存，正在刷新预览。';
+      showStatus(message.type === 'error' ? message.message : saved, message.type === 'error');
     }
   });
 

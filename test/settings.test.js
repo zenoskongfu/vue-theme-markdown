@@ -21,15 +21,15 @@ function api(values = {}, overrides = {}, folders = [{ name: 'docs' }]) {
 test('invalid configuration falls back to safe defaults without CSS injection', () => {
   for (const value of [undefined, null, NaN, Infinity, -1, 0, 999, '16', '14px;</style>', 14.5]) {
     assert.deepEqual(readSettings(api({ fontSize: value, tableRowHeight: value })), {
-      fontSize: 14, tableRowHeight: 36,
+      theme: 'vue', fontSize: 14, tableRowHeight: 36,
     });
     assert.throws(() => validateSettings({ fontSize: value, tableRowHeight: 36 }));
   }
 });
 
 test('valid boundaries are accepted and only supported fields are returned', () => {
-  assert.deepEqual(validateSettings({ fontSize: 10, tableRowHeight: 24, other: true }), { fontSize: 10, tableRowHeight: 24 });
-  assert.deepEqual(validateSettings({ fontSize: 32, tableRowHeight: 120 }), { fontSize: 32, tableRowHeight: 120 });
+  assert.deepEqual(validateSettings({ theme: 'paper', fontSize: 10, tableRowHeight: 24, other: true }), { theme: 'paper', fontSize: 10, tableRowHeight: 24 });
+  assert.deepEqual(validateSettings({ theme: 'night', fontSize: 32, tableRowHeight: 120 }), { theme: 'night', fontSize: 32, tableRowHeight: 120 });
   assert.throws(() => validateSettings({ fontSize: 14 }));
   assert.throws(() => validateSettings(null));
 });
@@ -41,6 +41,19 @@ test('sidebar writes to the most specific existing scope, otherwise user setting
     fontSize: { workspaceValue: 15 }, tableRowHeight: { workspaceFolderValue: 30 },
   }), {}).target, 3);
   assert.equal(getSaveTarget(api({}, { fontSize: { workspaceValue: 15 } }, null)).target, 1);
+  assert.equal(getSaveTarget(api({}, { theme: { workspaceFolderValue: 'paper' } }), {}).target, 3);
+});
+
+test('only known theme identifiers are accepted; old installations retain Vue by default', () => {
+  const { THEMES } = require('../src/themes');
+  const schema = require('../package.json').contributes.configuration.properties['vueGreenMarkdown.theme'];
+  assert.deepEqual(schema.enum, THEMES.map(theme => theme.id));
+  assert.equal(schema.default, 'vue');
+  for (const theme of THEMES) assert.equal(readSettings(api({ theme: theme.id })).theme, theme.id);
+  for (const theme of [undefined, null, 'unknown', 'paper;</style><script>', '__proto__', {}, 1]) {
+    assert.equal(readSettings(api({ theme })).theme, 'vue');
+    assert.throws(() => validateSettings({ theme, fontSize: 14, tableRowHeight: 36 }));
+  }
 });
 
 test('manifest defaults and limits agree with configuration validation', () => {

@@ -2,6 +2,16 @@
 
 All notable changes to this extension are documented here.
 
+## 0.3.0 - 2026-10-10
+
+- Renamed the extension to 阅境 Markdown (Reading Realm), retaining its extension ID and existing settings.
+- Added five novel reading themes: warm paper, pale green, clean gray, parchment, and night.
+- Added immediate theme switching through sidebar preview cards, without overwriting sizing settings or unsaved edits.
+- Added novel typography with two-character indentation, spacious line height, and simplified chapter headings.
+- Preserved existing full-width-space indentation and Markdown source maps when switching themes.
+- Kept explicit high-contrast editor colors, non-wrapping tables, and readable white print output.
+- Updated the sidebar and Marketplace branding with book icons.
+
 ## 0.2.0 - 2026-10-10
 
 - Added a Vue Markdown sidebar with font-size and table-row-height controls, Apply, and Reset.

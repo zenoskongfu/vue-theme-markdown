@@ -1,0 +1,50 @@
+:root { color-scheme: light dark; }
+body.vscode-dark, body.vscode-high-contrast { color-scheme: dark; }
+body.vscode-light, body.vscode-high-contrast-light { color-scheme: light; }
+body {
+  margin: 0;
+  padding: 18px 16px;
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+h1 { margin: 0 0 8px; font-size: 16px; font-weight: 600; }
+.description, .help, .context { color: var(--vscode-descriptionForeground); line-height: 1.6; }
+.description { margin: 0 0 16px; }
+.context { overflow-wrap: anywhere; font-size: 12px; }
+fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.field { margin: 24px 0; }
+label { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 600; }
+label span { font-weight: 400; color: var(--vscode-descriptionForeground); }
+.controls { display: flex; align-items: center; gap: 12px; }
+input[type="range"] { flex: 1; min-width: 0; accent-color: var(--vscode-focusBorder); }
+input[type="number"] {
+  box-sizing: border-box;
+  width: 66px;
+  padding: 6px 8px;
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 3px;
+  color: var(--vscode-input-foreground);
+  background: var(--vscode-input-background);
+  font: inherit;
+}
+.help { margin: 8px 0 0; font-size: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+button {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 3px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { background: var(--vscode-button-hoverBackground); }
+button.secondary { background: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground); }
+button.secondary:hover { background: var(--vscode-button-secondaryHoverBackground); }
+input:focus-visible, button:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: 2px; }
+fieldset:disabled { opacity: 0.65; }
+fieldset:disabled button { cursor: default; }
+#status { min-height: 2.8em; color: var(--vscode-descriptionForeground); font-size: 12px; line-height: 1.6; }
+#status.error { color: var(--vscode-errorForeground); }

@@ -2,7 +2,7 @@
   "name": "vue-theme-markdown",
   "displayName": "Vue Green Markdown Preview",
   "description": "A clean Vue and VitePress inspired theme for VS Code's built-in Markdown preview.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "publisher": "zenoschen",
   "author": "zenoschen",
   "icon": "images/icon.png",
@@ -32,20 +32,78 @@
     "ui",
     "workspace"
   ],
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
   "galleryBanner": {
     "color": "#213547",
     "theme": "dark"
   },
   "contributes": {
+    "markdown.markdownItPlugins": true,
     "markdown.previewStyles": [
       "./v-green.css"
+    ],
+    "configuration": {
+      "title": "Vue Green Markdown Preview",
+      "properties": {
+        "vueGreenMarkdown.fontSize": {
+          "type": "integer",
+          "default": 14,
+          "minimum": 10,
+          "maximum": 32,
+          "scope": "resource",
+          "description": "Markdown preview font size in pixels. Headings and code scale with this size."
+        },
+        "vueGreenMarkdown.tableRowHeight": {
+          "type": "integer",
+          "default": 36,
+          "minimum": 24,
+          "maximum": 120,
+          "scope": "resource",
+          "description": "Minimum table row height in pixels. Cells stay on one line and wide tables scroll horizontally. Explicit line breaks and taller content can increase the height."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vueGreenMarkdown",
+          "title": "Vue Markdown",
+          "icon": "images/sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "vueGreenMarkdown": [
+        {
+          "type": "webview",
+          "id": "vueGreenMarkdown.settings",
+          "name": "Preview Settings"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vueGreenMarkdown.openSettings",
+        "title": "Open Preview Settings",
+        "category": "Vue Markdown"
+      }
     ]
   },
   "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:layout": "node --test test/layout/browser.js",
+    "test:integration": "node scripts/test-vscode.js",
     "package": "vsce package",
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@vscode/vsce": "^3.9.2"
+    "@vscode/vsce": "^3.9.2",
+    "@vscode/test-electron": "^2.5.2",
+    "markdown-it": "^14.1.0",
+    "playwright-core": "^1.56.0",
+    "pngjs": "^7.0.0"
   }
 }

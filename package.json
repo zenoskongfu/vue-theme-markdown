@@ -1,8 +1,8 @@
 {
   "name": "vue-theme-markdown",
-  "displayName": "阅境 Markdown",
-  "description": "Novel reading themes and a Vue-inspired document theme for Markdown previews, with sidebar controls. 小说主题、字号与表格行高设置。",
-  "version": "0.3.1",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.3.2",
   "publisher": "zenoschen",
   "author": "zenoschen",
   "icon": "images/icon.png",
@@ -48,7 +48,7 @@
       "./v-green.css"
     ],
     "configuration": {
-      "title": "阅境 Markdown",
+      "title": "%config.title%",
       "properties": {
         "vueGreenMarkdown.fontSize": {
           "type": "integer",
@@ -56,7 +56,7 @@
           "minimum": 10,
           "maximum": 32,
           "scope": "resource",
-          "description": "Markdown preview font size in pixels. Headings and code scale with this size."
+          "description": "%config.fontSize%"
         },
         "vueGreenMarkdown.tableRowHeight": {
           "type": "integer",
@@ -64,23 +64,39 @@
           "minimum": 24,
           "maximum": 120,
           "scope": "resource",
-          "description": "Minimum table row height in pixels. Cells stay on one line and wide tables scroll horizontally. Explicit line breaks and taller content can increase the height."
+          "description": "%config.tableRowHeight%"
         },
         "vueGreenMarkdown.horizontalMargin": {
-          "type": "integer",
+          "type": "number",
           "default": 0,
           "minimum": 0,
           "maximum": 320,
           "scope": "resource",
-          "description": "Markdown preview left and right page padding in pixels (1–320). Set to 0 to keep each theme's existing responsive default. In narrow previews, custom side padding is capped at 10% of the window width. Does not change print margins."
+          "description": "%config.horizontalMargin%"
         },
         "vueGreenMarkdown.verticalMargin": {
-          "type": "integer",
+          "type": "number",
           "default": 0,
           "minimum": 0,
           "maximum": 320,
           "scope": "resource",
-          "description": "Markdown preview top and bottom page padding in pixels (1–320). Set to 0 to keep each theme's existing top and bottom defaults. Does not change print margins."
+          "description": "%config.verticalMargin%"
+        },
+        "vueGreenMarkdown.horizontalMarginMode": {
+          "type": "string",
+          "default": "theme",
+          "scope": "resource",
+          "enum": ["theme", "custom"],
+          "enumItemLabels": ["%config.mode.theme%", "%config.mode.custom%"],
+          "description": "%config.horizontalMarginMode%"
+        },
+        "vueGreenMarkdown.verticalMarginMode": {
+          "type": "string",
+          "default": "theme",
+          "scope": "resource",
+          "enum": ["theme", "custom"],
+          "enumItemLabels": ["%config.mode.theme%", "%config.mode.custom%"],
+          "description": "%config.verticalMarginMode%"
         },
         "vueGreenMarkdown.theme": {
           "type": "string",
@@ -95,22 +111,22 @@
             "night"
           ],
           "enumItemLabels": [
-            "Vue 文档",
-            "暖纸",
-            "青竹",
-            "雾白",
-            "古卷",
-            "墨夜"
+            "%theme.vue%",
+            "%theme.paper%",
+            "%theme.bamboo%",
+            "%theme.clean%",
+            "%theme.parchment%",
+            "%theme.night%"
           ],
           "enumDescriptions": [
-            "Vue documentation theme; follows the editor appearance.",
-            "Warm paper with Songti typography.",
-            "Jinjiang-inspired pale green reading page.",
-            "Fanqie-inspired clean gray reading page.",
-            "Parchment with classical Kaiti typography.",
-            "Fixed dark palette for night reading."
+            "%theme.vue.description%",
+            "%theme.paper.description%",
+            "%theme.bamboo.description%",
+            "%theme.clean.description%",
+            "%theme.parchment.description%",
+            "%theme.night.description%"
           ],
-          "description": "Markdown reading theme. Novel themes use their own palettes independently of the editor appearance; explicit high-contrast editor themes retain accessible editor colors."
+          "description": "%config.theme%"
         }
       }
     },
@@ -118,7 +134,7 @@
       "activitybar": [
         {
           "id": "vueGreenMarkdown",
-          "title": "阅境 Markdown",
+          "title": "%activity.title%",
           "icon": "images/sidebar.svg"
         }
       ]
@@ -128,15 +144,15 @@
         {
           "type": "webview",
           "id": "vueGreenMarkdown.settings",
-          "name": "阅读设置"
+          "name": "%view.name%"
         }
       ]
     },
     "commands": [
       {
         "command": "vueGreenMarkdown.openSettings",
-        "title": "打开阅读设置",
-        "category": "阅境 Markdown"
+        "title": "%command.openSettings%",
+        "category": "%command.category%"
       }
     ]
   },

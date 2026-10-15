@@ -31,6 +31,7 @@ test('page margins keep theme defaults, respond to settings, and fit narrow prev
         [1100, [240, 70], [70, 240, 70]],
         [761, [320, 70], [70, 240.5, 70]],
         [420, [240, 70], [70, 42, 70]],
+        [420, [0.5, 1.25], [1.25, 0.5, 1.25]],
       ]) {
         await page.setViewportSize({ width, height: 900 });
         const md = extendMarkdownIt(new MarkdownIt(), () => ({ theme, fontSize: 14, tableRowHeight: 36, horizontalMargin: margins[0], verticalMargin: margins[1] }));
@@ -39,10 +40,16 @@ test('page margins keep theme defaults, respond to settings, and fit narrow prev
           const body = getComputedStyle(document.body);
           return {
             padding: [body.paddingTop, body.paddingRight, body.paddingBottom, body.paddingLeft].map(parseFloat),
+            bodyWidth: document.body.getBoundingClientRect().width,
+            headingLeft: document.querySelector('h1').getBoundingClientRect().left,
+            headingRight: document.querySelector('h1').getBoundingClientRect().right,
             overflow: document.documentElement.scrollWidth > innerWidth,
           };
         });
         assert.deepEqual(metrics.padding, [expected[0], expected[1], expected[2], expected[1]], `${theme} at ${width}px`);
+        assert.ok(Math.abs(metrics.bodyWidth - width) < 1, `${theme} body must use the full ${width}px viewport: ${JSON.stringify(metrics)}`);
+        assert.ok(Math.abs(metrics.headingLeft - expected[1]) < 1, `${theme} visible content starts at the page padding`);
+        assert.ok(Math.abs(metrics.headingRight - (width - expected[1])) < 1, `${theme} visible content ends at the page padding`);
         assert.equal(metrics.overflow, false);
         if (margins[0]) {
           await page.emulateMedia({ media: 'print' });
@@ -54,6 +61,34 @@ test('page margins keep theme defaults, respond to settings, and fit narrow prev
   } finally {
     await browser.close();
   }
+});
+
+test('a 2048px preview has no centered width cap, and custom 0px is truly edge to edge', async () => {
+  const browser = await chromium.launch({ executablePath, headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 2048, height: 900 } });
+    for (const theme of THEMES.map(item => item.id)) {
+      for (const [margin, mode] of [[0, 'theme'], [1, 'custom'], [0.5, 'custom'], [0, 'custom']]) {
+        const md = extendMarkdownIt(new MarkdownIt(), () => ({ theme, fontSize: 14, tableRowHeight: 36,
+          horizontalMargin: margin, verticalMargin: 0, horizontalMarginMode: mode, verticalMarginMode: mode }));
+        await page.setContent(`<html><head><style>${hostCss}</style><style>${css}</style></head><body class="vscode-body vscode-light">${md.render('# Title\n\nParagraph')}</body></html>`);
+        const geometry = await page.evaluate(() => {
+          const body = document.body.getBoundingClientRect();
+          const heading = document.querySelector('h1').getBoundingClientRect();
+          const style = getComputedStyle(document.body);
+          return { bodyLeft: body.left, bodyRight: body.right, headingLeft: heading.left, headingRight: heading.right,
+            top: parseFloat(style.paddingTop), left: parseFloat(style.paddingLeft), maxWidth: style.maxWidth,
+            overflow: document.documentElement.scrollWidth > innerWidth };
+        });
+        const expected = mode === 'theme' ? (theme === 'vue' ? 56 : 60) : margin;
+        assert.equal(geometry.maxWidth, 'none', `${theme} max width`);
+        assert.ok(Math.abs(geometry.bodyLeft) < 1 && Math.abs(geometry.bodyRight - 2048) < 1, JSON.stringify(geometry));
+        assert.ok(Math.abs(geometry.headingLeft - expected) < 1 && Math.abs(geometry.headingRight - (2048 - expected)) < 1, JSON.stringify(geometry));
+        if (mode === 'custom' && margin === 0) assert.equal(geometry.top, 0);
+        assert.equal(geometry.overflow, false);
+      }
+    }
+  } finally { await browser.close(); }
 });
 
 test('preview sizes scale, table text stays single-line, and wide tables scroll', async () => {
@@ -193,6 +228,7 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
   const localRequire = createRequire(filename);
   const module = { exports: {} };
   const vscode = {
+    env: { language: 'zh-cn' },
     window: { onDidChangeActiveTextEditor: () => ({ dispose() {} }) },
     Uri: { joinPath: (base, ...segments) => segments.join('/') },
   };
@@ -200,6 +236,8 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
   wrapper(name => name === 'vscode' ? vscode : localRequire(name), module, module.exports);
   const provider = new module.exports.SettingsViewProvider({});
   const sidebarHtml = provider.getHtml({ cspSource: 'https://reading.test', asWebviewUri: uri => `https://reading.test/${uri}` });
+  vscode.env.language = 'en';
+  const englishHtml = new module.exports.SettingsViewProvider({}).getHtml({ cspSource: 'https://reading.test', asWebviewUri: uri => `https://reading.test/${uri}` });
   const nonce = sidebarHtml.match(/<style nonce="([^"]+)"/)[1];
   // VS Code supplies these theme tokens to every webview.
   const hostTheme = `<style nonce="${nonce}">:root{--vscode-foreground:#cccccc;--vscode-descriptionForeground:#9d9d9d;--vscode-font-family:system-ui,sans-serif;--vscode-font-size:13px;--vscode-focusBorder:#007fd4;--vscode-widget-border:#454545;--vscode-input-foreground:#cccccc;--vscode-input-background:#3c3c3c;--vscode-button-background:#0078d4;--vscode-button-foreground:#ffffff;--vscode-button-hoverBackground:#026ec1;--vscode-button-secondaryBackground:#313131;--vscode-button-secondaryForeground:#cccccc;--vscode-button-secondaryHoverBackground:#3c3c3c;--vscode-list-hoverBackground:#2b2b2b;--vscode-errorForeground:#f48771}body{background:#181818}</style>`;
@@ -211,14 +249,15 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
     page.on('pageerror', error => errors.push(error.message));
     await page.route('https://reading.test/**', route => {
       const asset = new URL(route.request().url()).pathname;
-      return route.fulfill(asset === '/sidebar'
-        ? { contentType: 'text/html', body: html }
+      return route.fulfill(asset === '/sidebar' || asset === '/sidebar-en'
+        ? { contentType: 'text/html', body: asset === '/sidebar' ? html : englishHtml }
         : { contentType: asset.endsWith('.css') ? 'text/css' : 'text/javascript', body: fs.readFileSync(path.join(root, asset.slice(1)), 'utf8') });
     });
     await page.addInitScript(() => {
-      window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 };
+      window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: 'theme', verticalMarginMode: 'theme' };
       window.readingRequests = [];
-      const state = () => ({ settings: { ...window.readingSettings }, resource: 'file:///novel.md', file: 'novel.md', scope: '用户设置' });
+      const state = () => ({ settings: { ...window.readingSettings }, resource: 'file:///novel.md', file: 'novel.md',
+        scope: document.documentElement.lang === 'en' ? 'User settings' : '用户设置' });
       window.acquireVsCodeApi = () => ({ postMessage: request => {
         window.readingRequests.push(request);
         if (request.type === 'ready') return window.postMessage({ type: 'state', ...state() }, '*');
@@ -226,7 +265,7 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
           return window.postMessage({ type: 'error', action: 'theme', message: 'Cannot save theme', ...state() }, '*');
         }
         if (request.type === 'theme') window.readingSettings.theme = request.theme;
-        else if (request.type === 'reset') window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 };
+        else if (request.type === 'reset') window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: 'theme', verticalMarginMode: 'theme' };
         else window.readingSettings = request.settings;
         window.postMessage({ type: 'saved', action: request.type, ...state() }, '*');
       } });
@@ -236,6 +275,8 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
     assert.equal(await page.locator('h1').innerText(), '阅境 Markdown');
     assert.equal(await page.locator('.theme-choice').count(), 6);
     await page.locator('#fontSize').fill('20');
+    await page.locator('#horizontalMarginMode').selectOption('custom');
+    await page.locator('#verticalMarginMode').selectOption('custom');
     await page.locator('#horizontalMargin').fill('240');
     await page.locator('#verticalMargin').fill('70');
     await page.getByText('暖纸', { exact: true }).click();
@@ -243,6 +284,7 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
     assert.equal(await page.locator('#fontSize').inputValue(), '20');
     assert.equal(await page.locator('#horizontalMargin').inputValue(), '240');
     assert.equal(await page.locator('#verticalMargin').inputValue(), '70');
+    assert.equal(await page.locator('#horizontalMarginMode').inputValue(), 'custom');
     assert.equal(await page.evaluate(() => window.readingSettings.fontSize), 14);
     assert.match(await page.locator('#status').innerText(), /仍待应用/);
     await page.evaluate(() => { window.failTheme = true; });
@@ -258,10 +300,24 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
     assert.equal(await page.locator('#fontSize').inputValue(), '14');
     assert.equal(await page.locator('#horizontalMargin').inputValue(), '0');
     assert.equal(await page.locator('#verticalMargin').inputValue(), '0');
+    assert.equal(await page.locator('#horizontalMarginMode').inputValue(), 'theme');
     assert.equal(await page.locator('#theme-vue').isChecked(), true);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     assert.deepEqual(errors, []);
     await page.screenshot({ path: path.join(root, 'work/reading-sidebar.png'), fullPage: true });
+    await page.goto('https://reading.test/sidebar-en');
+    await page.waitForFunction(() => !document.querySelector('fieldset').disabled);
+    assert.equal(await page.locator('h1').innerText(), 'Yuejing Markdown');
+    assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+    assert.equal(await page.locator('.theme-name').first().innerText(), 'Vue Docs');
+    await page.locator('#horizontalMarginMode').selectOption('custom');
+    await page.locator('#horizontalMargin').fill('0.5');
+    await page.getByRole('button', { name: 'Apply Settings' }).click();
+    await page.waitForFunction(() => !document.querySelector('fieldset').disabled && window.readingSettings.horizontalMarginMode === 'custom');
+    assert.match(await page.locator('#status').innerText(), /Saved\. Refreshing previews\./);
+    assert.equal(await page.evaluate(() => window.readingRequests.at(-1).settings.horizontalMargin), 0.5);
+    assert.deepEqual(errors, []);
+    await page.screenshot({ path: path.join(root, 'work/reading-sidebar-en.png'), fullPage: true });
   } finally {
     await browser.close();
   }

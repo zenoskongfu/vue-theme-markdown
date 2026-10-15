@@ -23,6 +23,7 @@ runTests({
     '--skip-welcome',
     '--skip-release-notes',
     '--disable-workspace-trust',
+    ...(process.env.VSCODE_TEST_LOCALE ? [`--locale=${process.env.VSCODE_TEST_LOCALE}`] : []),
   ],
 }).catch(error => {
   console.error(error);

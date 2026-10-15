@@ -66,6 +66,26 @@ test('page margin settings update cached previews and omit unsafe or default val
   assert.doesNotMatch(html, /--vue-preview-margin-|<script>/);
 });
 
+test('custom zero padding emits 0px while theme defaults omit it', () => {
+  let mode = 'theme';
+  const md = extendMarkdownIt(new MarkdownIt(), () => ({ theme: 'vue', fontSize: 14, tableRowHeight: 36,
+    horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: mode, verticalMarginMode: mode }));
+  const tokens = md.parse('# Heading', {});
+  assert.doesNotMatch(md.renderer.render(tokens, md.options, {}), /--vue-preview-margin-/);
+  mode = 'custom';
+  const html = md.renderer.render(tokens, md.options, {});
+  assert.match(html, /--vue-preview-margin-horizontal:0px;/);
+  assert.match(html, /--vue-preview-margin-vertical:0px;/);
+});
+
+test('fractional padding reaches CSS without coercion', () => {
+  const md = extendMarkdownIt(new MarkdownIt(), () => ({ theme: 'paper', fontSize: 14, tableRowHeight: 36,
+    horizontalMargin: 0.5, verticalMargin: 1.25, horizontalMarginMode: 'custom', verticalMarginMode: 'custom' }));
+  const html = md.render('# Heading');
+  assert.match(html, /--vue-preview-margin-horizontal:0.5px;/);
+  assert.match(html, /--vue-preview-margin-vertical:1.25px;/);
+});
+
 test('registering twice does not add duplicate style elements', () => {
   const md = new MarkdownIt();
   const settings = () => ({ fontSize: 14, tableRowHeight: 36 });

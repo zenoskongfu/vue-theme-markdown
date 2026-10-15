@@ -29,7 +29,8 @@ function extendMarkdownIt(md, getSettings) {
     // Read during rendering, rather than parsing: VS Code caches parsed tokens.
     const settings = getSettings(env?.currentDocument);
     const margins = [['horizontalMargin', '--vue-preview-margin-horizontal'], ['verticalMargin', '--vue-preview-margin-vertical']]
-      .filter(([key]) => isValid(key, settings[key]) && settings[key] > 0)
+      .filter(([key]) => isValid(key, settings[key]) &&
+        (settings[`${key}Mode`] === 'custom' || (settings[`${key}Mode`] === undefined && settings[key] > 0)))
       .map(([key, cssName]) => `${cssName}:${settings[key]}px;`).join('');
     const styles = `<style id="vue-green-markdown-settings">:root{--vue-font-size:${settings.fontSize}px;--vue-table-row-height:${settings.tableRowHeight}px;${margins}}${getThemeCss(settings.theme)}</style>\n`;
     const previous = novel;

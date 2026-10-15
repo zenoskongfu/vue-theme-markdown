@@ -4,7 +4,9 @@
   const form = document.getElementById('settings');
   const fieldset = form.querySelector('fieldset');
   const status = document.getElementById('status');
+  const t = window.readingStrings;
   const keys = ['fontSize', 'tableRowHeight', 'horizontalMargin', 'verticalMargin'];
+  const marginKeys = ['horizontalMargin', 'verticalMargin'];
   let resource = null;
   let dirty = false;
   let saving = false;
@@ -21,9 +23,27 @@
         document.getElementById(key).value = message.settings[key];
         document.getElementById(`${key}Range`).value = message.settings[key];
       }
+      for (const key of marginKeys) document.getElementById(`${key}Mode`).value = message.settings[`${key}Mode`];
+      syncMarginControls();
       dirty = false;
     }
     document.getElementById(`theme-${message.settings.theme}`).checked = true;
+  }
+
+  function syncMarginControls() {
+    for (const key of marginKeys) {
+      const custom = document.getElementById(`${key}Mode`).value === 'custom';
+      document.getElementById(key).disabled = !custom;
+      document.getElementById(`${key}Range`).disabled = !custom;
+    }
+  }
+
+  for (const key of marginKeys) {
+    document.getElementById(`${key}Mode`).addEventListener('change', () => {
+      syncMarginControls();
+      dirty = true;
+      showStatus(t.applyHint);
+    });
   }
 
   for (const key of keys) {
@@ -32,19 +52,19 @@
     range.addEventListener('input', () => {
       number.value = range.value;
       dirty = true;
-      showStatus('点击“应用设置”更新预览。');
+      showStatus(t.applyHint);
     });
     number.addEventListener('input', () => {
       if (number.validity.valid) range.value = number.value;
       dirty = true;
-      showStatus('点击“应用设置”更新预览。');
+      showStatus(t.applyHint);
     });
   }
 
   function send(type, theme) {
     saving = true;
     fieldset.disabled = true;
-    showStatus('正在保存…');
+    showStatus(t.saving);
     vscode.postMessage({
       type,
       resource,
@@ -52,6 +72,7 @@
       settings: {
         theme: form.querySelector('input[name="theme"]:checked').value,
         ...Object.fromEntries(keys.map(key => [key, Number(document.getElementById(key).value)])),
+        ...Object.fromEntries(marginKeys.map(key => [`${key}Mode`, document.getElementById(`${key}Mode`).value])),
       },
     });
   }
@@ -73,23 +94,23 @@
   window.addEventListener('message', event => {
     const message = event.data;
     if (!['state', 'saved', 'error'].includes(message?.type)) return;
-    document.getElementById('file').textContent = `当前：${message.file}`;
-    document.getElementById('scope').textContent = `保存到：${message.scope}`;
+    document.getElementById('file').textContent = `${t.file}: ${message.file}`;
+    document.getElementById('scope').textContent = `${t.saveTo}: ${message.scope}`;
     const changedFile = message.resource !== resource;
     if (message.type === 'state') {
       if (!saving) {
         populate(message, dirty && !changedFile);
         fieldset.disabled = false;
-        if (changedFile) showStatus('已读取当前文件的设置。');
-        else if (status.textContent === '正在读取设置…') showStatus('点击“应用设置”保存，并刷新已打开的预览。');
+        if (changedFile) showStatus(t.fileLoaded);
+        else if (status.textContent === t.loading) showStatus(t.initial);
       }
     } else {
       saving = false;
       fieldset.disabled = false;
       populate(message, message.action === 'theme' && dirty && !changedFile);
       const themeName = document.getElementById(`theme-${message.settings.theme}`).dataset.name;
-      const saved = message.action === 'theme' ? `已切换为“${themeName}”。${dirty ? '阅读设置的修改仍待应用。' : '预览正在刷新。'}`
-        : message.action === 'reset' ? '已恢复 Vue 文档主题、14px 字号、36px 行高和主题默认页边距。' : '已保存，正在刷新预览。';
+      const saved = message.action === 'theme' ? `${t.themeChangedPrefix}${themeName}${t.themeChangedSuffix}${dirty ? t.pending : t.refreshing}`
+        : message.action === 'reset' ? t.reset : t.saved;
       showStatus(message.type === 'error' ? message.message : saved, message.type === 'error');
     }
   });

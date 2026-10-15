@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const { SECTION, readSettings } = require('./settings');
 const { extendMarkdownIt } = require('./markdown');
 const { SettingsViewProvider } = require('./sidebar');
+const { messages } = require('./i18n');
 
 function activate(context) {
   const provider = new SettingsViewProvider(context.extensionUri);
@@ -19,7 +20,7 @@ function activate(context) {
       clearTimeout(refreshTimer);
       refreshTimer = setTimeout(() => {
         vscode.commands.executeCommand('markdown.preview.refresh').then(undefined, error => {
-          vscode.window.showErrorMessage(`阅境 Markdown 预览刷新失败：${error.message}`);
+          vscode.window.showErrorMessage(messages(vscode.env.language).errors.refreshFailed(error.message));
         });
       }, 100);
     }),

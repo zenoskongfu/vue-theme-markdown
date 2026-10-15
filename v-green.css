@@ -50,7 +50,6 @@
   --vue-radius-md: 10px;
   --vue-radius-lg: 14px;
 
-  --vue-content-width: 900px;
   --vue-font-size: 14px;
   --vue-table-row-height: 36px;
 }
@@ -133,8 +132,8 @@ html {
 body,
 body.vscode-body {
   box-sizing: border-box;
-  max-width: var(--vue-content-width);
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding: var(--vue-preview-margin-vertical, 48px) min(var(--vue-preview-margin-horizontal, 56px), max(8px, calc(50vw - 140px))) var(--vue-preview-margin-vertical, 80px);
   color: var(--vue-text-1);
   background: var(--vue-bg);

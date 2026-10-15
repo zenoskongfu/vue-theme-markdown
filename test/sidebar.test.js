@@ -7,11 +7,12 @@ const vm = require('node:vm');
 const { createRequire } = require('node:module');
 const path = require('node:path');
 
-function sidebar(failOnKey) {
-  const values = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 };
+function sidebar(failOnKey, locale = 'en') {
+  const values = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: 'theme', verticalMarginMode: 'theme' };
   const writes = [];
   const messages = [];
   const vscode = {
+    env: { language: locale },
     ConfigurationTarget: { Global: 1, Workspace: 2, WorkspaceFolder: 3 },
     window: { onDidChangeActiveTextEditor: () => ({ dispose() {} }) },
     workspace: {
@@ -48,22 +49,32 @@ test('sidebar rejects invalid input and a stale document before writing settings
   assert.ok(messages.some(message => message.type === 'error'));
 });
 
+test('validation errors and scope labels follow the editor language', async () => {
+  for (const [locale, expected] of [['en', /padding mode/], ['zh-cn', /页边距模式/]]) {
+    const { provider, messages } = sidebar(undefined, locale);
+    await provider.save({ type: 'save', resource: null, settings: { theme: 'vue', fontSize: 14,
+      tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: 'invalid', verticalMarginMode: 'theme' } });
+    assert.match(messages.find(message => message.type === 'error').message, expected);
+    assert.equal(provider.state().scope, locale === 'en' ? 'User settings' : '用户设置');
+  }
+});
+
 test('Apply and Reset persist values before reporting success', async () => {
   const { provider, writes, values, messages } = sidebar();
-  await provider.save({ type: 'save', resource: null, settings: { theme: 'paper', fontSize: 13, tableRowHeight: 30, horizontalMargin: 140, verticalMargin: 72 } });
-  assert.deepEqual(values, { theme: 'paper', fontSize: 13, tableRowHeight: 30, horizontalMargin: 140, verticalMargin: 72 });
+  await provider.save({ type: 'save', resource: null, settings: { theme: 'paper', fontSize: 13, tableRowHeight: 30, horizontalMargin: 140, verticalMargin: 72, horizontalMarginMode: 'custom', verticalMarginMode: 'custom' } });
+  assert.deepEqual(values, { theme: 'paper', fontSize: 13, tableRowHeight: 30, horizontalMargin: 140, verticalMargin: 72, horizontalMarginMode: 'custom', verticalMarginMode: 'custom' });
   assert.ok(writes.every(write => write.target === 1));
   assert.equal(messages.filter(message => message.type === 'saved').length, 1);
   await provider.save({ type: 'reset', resource: null });
-  assert.deepEqual(values, { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 });
+  assert.deepEqual(values, { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: 'theme', verticalMarginMode: 'theme' });
 });
 
 test('failed writes report the actual partial configuration and keep controls recoverable', async () => {
   const { provider, messages } = sidebar('tableRowHeight');
-  await provider.save({ type: 'save', resource: null, settings: { theme: 'night', fontSize: 13, tableRowHeight: 30, horizontalMargin: 140, verticalMargin: 72 } });
+  await provider.save({ type: 'save', resource: null, settings: { theme: 'night', fontSize: 13, tableRowHeight: 30, horizontalMargin: 140, verticalMargin: 72, horizontalMarginMode: 'custom', verticalMarginMode: 'custom' } });
   const error = messages.find(message => message.type === 'error');
   assert.ok(error);
-  assert.deepEqual(error.settings, { theme: 'night', fontSize: 13, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 });
+  assert.deepEqual(error.settings, { theme: 'night', fontSize: 13, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: 'theme', verticalMarginMode: 'theme' });
   assert.equal(messages.some(message => message.type === 'saved'), false);
   assert.equal(provider.saving, false);
 });
@@ -72,7 +83,7 @@ test('instant theme switching only persists the theme and rejects invalid or sta
   const { provider, values, writes, messages } = sidebar();
   await provider.save({ type: 'theme', theme: 'bamboo', resource: null, settings: { fontSize: 22, tableRowHeight: 60, horizontalMargin: 140, verticalMargin: 72 } });
   assert.deepEqual(writes, [{ key: 'theme', value: 'bamboo', target: 1 }]);
-  assert.deepEqual(values, { theme: 'bamboo', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 });
+  assert.deepEqual(values, { theme: 'bamboo', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, horizontalMarginMode: 'theme', verticalMarginMode: 'theme' });
   assert.equal(messages.find(message => message.type === 'saved').action, 'theme');
   await provider.save({ type: 'theme', theme: 'invalid', resource: null });
   await provider.save({ type: 'theme', theme: 'paper', resource: 'file:///other.md' });

@@ -13,8 +13,9 @@ async function run() {
   const document = await vscode.workspace.openTextDocument(resource);
   await vscode.window.showTextDocument(document);
   const config = vscode.workspace.getConfiguration('vueGreenMarkdown', resource);
-  assert.equal(extension.packageJSON.displayName, '阅境 Markdown');
-  const original = Object.fromEntries(['theme', 'fontSize', 'tableRowHeight', 'horizontalMargin', 'verticalMargin'].map(key => [key, {
+  assert.equal(extension.id, 'zenoschen.vue-theme-markdown');
+  assert.equal(extension.packageJSON.displayName, /^zh/i.test(vscode.env.language) ? '阅境 Markdown' : 'Yuejing Markdown');
+  const original = Object.fromEntries(['theme', 'fontSize', 'tableRowHeight', 'horizontalMargin', 'verticalMargin', 'horizontalMarginMode', 'verticalMarginMode'].map(key => [key, {
     global: config.inspect(key).globalValue,
     workspace: config.inspect(key).workspaceValue,
     folder: config.inspect(key).workspaceFolderValue,
@@ -25,6 +26,8 @@ async function run() {
     await config.update('tableRowHeight', 30, vscode.ConfigurationTarget.Global);
     await config.update('horizontalMargin', 96, vscode.ConfigurationTarget.Global);
     await config.update('verticalMargin', 48, vscode.ConfigurationTarget.Global);
+    await config.update('horizontalMarginMode', 'custom', vscode.ConfigurationTarget.Global);
+    await config.update('verticalMarginMode', 'custom', vscode.ConfigurationTarget.Global);
     let html = await vscode.commands.executeCommand('markdown.api.render', document.getText());
     assert.match(html, /--vue-font-size:13px/);
     assert.match(html, /--vue-table-row-height:30px/);
@@ -32,6 +35,13 @@ async function run() {
     assert.match(html, /--vue-preview-margin-vertical:48px/);
     assert.match(html, /--vue-bg:#f6f1e7/);
     assert.match(html, /<table\b/);
+    await config.update('horizontalMargin', 0, vscode.ConfigurationTarget.Global);
+    await config.update('verticalMargin', 0, vscode.ConfigurationTarget.Global);
+    html = await vscode.commands.executeCommand('markdown.api.render', document.getText());
+    assert.match(html, /--vue-preview-margin-horizontal:0px;/);
+    assert.match(html, /--vue-preview-margin-vertical:0px;/);
+    await config.update('horizontalMargin', 96, vscode.ConfigurationTarget.Global);
+    await config.update('verticalMargin', 48, vscode.ConfigurationTarget.Global);
 
     await config.update('fontSize', 18, vscode.ConfigurationTarget.Workspace);
     html = await vscode.commands.executeCommand('markdown.api.render', document.getText());

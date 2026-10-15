@@ -2,6 +2,13 @@
 
 All notable changes to this extension are documented here.
 
+## 0.3.2 - 2026-10-15
+
+- Removed the fixed maximum text-column width from all preview themes so content uses the available preview width.
+- Added separate theme-default and custom page-padding modes. Custom 0px now removes padding, fractional pixel values are supported, and 0.3.1 values keep their previous meaning until a mode is selected.
+- Added English and Simplified Chinese manifest, sidebar, theme, status, and error strings based on VS Code's UI language. Added an English README and kept the Chinese guide.
+- Added wide and narrow viewport geometry checks and English and Chinese VS Code integration checks.
+
 ## 0.3.1 - 2026-10-15
 
 - Added horizontal and vertical Markdown preview page margin controls to the reading sidebar and VS Code settings.

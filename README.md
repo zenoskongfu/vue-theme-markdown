@@ -1,82 +1,74 @@
-# 阅境 Markdown · Reading Realm
+# Yuejing Markdown · Reading Realm
 
-在 VS Code 的内置 Markdown 预览中阅读小说，也能查看普通文档。提供五套小说阅读主题和原有的 Vue 文档主题，在侧边栏切换主题、设置字号、表格行高与页边距。
+English · [简体中文](README.zh-CN.md)
 
-## 使用
+Read novels and everyday documents in VS Code's built-in Markdown preview. Yuejing Markdown provides five novel themes, a Vue documentation theme, and sidebar controls for font size, table row height, and page padding.
 
-1. 安装并启用扩展，打开一个 Markdown 文件。
-2. 使用 **Markdown: Open Preview** 打开预览（macOS：`Cmd+Shift+V`；Windows/Linux：`Ctrl+Shift+V`）。
-3. 点击活动栏的书本图标 **阅境 Markdown**，或运行 **阅境 Markdown: 打开阅读设置**。
-4. 点击主题卡片即可保存并刷新预览。字号、表格行高与页边距可通过滑块或数字框调整，再点击 **应用设置**。设置变化会自动刷新已打开的预览。
+## Getting started
 
-## 阅读主题
+1. Install and enable the extension, then open a Markdown file.
+2. Run **Markdown: Open Preview** (`Cmd+Shift+V` on macOS, `Ctrl+Shift+V` on Windows or Linux).
+3. Select the book icon **Yuejing Markdown** in the Activity Bar, or run **Yuejing Markdown: Open Reading Settings**.
+4. Select a theme to save it immediately. Adjust the other controls and choose **Apply Settings** to save them and refresh open previews.
 
-| 主题 | 配色与字体 | 排版 |
+The sidebar follows the most recently active Markdown file. It shows where settings will be saved. A file's preview reads settings for that file, including workspace and folder overrides.
+
+## Reading themes
+
+| Theme | Appearance | Layout |
 | --- | --- | --- |
-| **Vue 文档** | Vue 绿色装饰，跟随 VS Code 的深浅色主题 | 保留原有文档、代码和表格样式 |
-| **暖纸** | 米色书页，宋体 | 居中章节标题，2.05 倍行距 |
-| **青竹** | 晋江阅读页风格的浅绿底，宋体 | 居中章节标题，2.1 倍行距 |
-| **雾白** | 番茄阅读页风格的浅灰底，黑体 | 左对齐标题，2 倍行距 |
-| **古卷** | 纵横纸色选项启发的古典书页，楷体 | 居中章节标题，2.15 倍行距 |
-| **墨夜** | 深灰底，柔和灰字 | 居中章节标题，2.05 倍行距 |
+| **Vue Docs** | Green accents; follows the editor's light or dark appearance | Familiar document, code, and table styling |
+| **Warm Paper** | Ivory page and serif type | Centered chapter headings, 2.05 line spacing |
+| **Bamboo** | Pale green and serif type | Centered chapter headings, 2.1 line spacing |
+| **Soft Gray** | Clean gray and sans serif type | Left-aligned headings, 2.0 line spacing |
+| **Parchment** | Classic paper and calligraphic serif type | Centered chapter headings, 2.15 line spacing |
+| **Night Ink** | Dark gray with gentle text contrast | Centered chapter headings, 2.05 line spacing |
 
-小说主题使用两字首行缩进、较宽的段落间距与简洁章节标题。已有全角空格的段落保留原有缩进；引用、列表、代码和表格使用各自的 Markdown 排版。字体使用本机字体，并提供回退字体，无需下载。
+Novel themes add first-line paragraph indents and generous paragraph spacing. Existing full-width-space indents are preserved. Quotes, lists, code, and tables keep their Markdown layouts. Fonts come from the system with local fallbacks; no download is needed. Novel palettes are independent of the editor's light or dark mode. Explicit high-contrast editor themes retain accessible editor colors. Printing uses a separate white-page layout.
 
-小说主题的配色独立于编辑器深浅色设置；**Vue 文档**仍跟随编辑器。显式高对比度主题使用编辑器的高对比度颜色，同时保留小说排版。打印使用白底和 11pt 正文。
+## Settings
 
-设计参考了[晋江文学城](https://www.jjwxc.net/onebook.php?novelid=3907377&chapterid=1)、[番茄小说](https://fanqienovel.com/reader/7069952706521236001)和[纵横中文网](https://read.zongheng.com/chapter/987598/60986533.html)的公开阅读页及阅读设置。配色与样式由本扩展独立实现。
-
-## 设置
-
-| 设置项 | 默认值 | 范围 |
+| Setting | Default | Values |
 | --- | --- | --- |
-| `vueGreenMarkdown.theme` | `vue` | `vue`、`paper`、`bamboo`、`clean`、`parchment`、`night` |
-| `vueGreenMarkdown.fontSize` | 14px | 10–32px |
-| `vueGreenMarkdown.tableRowHeight` | 36px | 24–120px |
-| `vueGreenMarkdown.horizontalMargin` | 0（沿用主题默认） | 0–320px；自定义值为左右留白 |
-| `vueGreenMarkdown.verticalMargin` | 0（沿用主题默认） | 0–320px；自定义值同时用于上下留白 |
+| `vueGreenMarkdown.theme` | `vue` | `vue`, `paper`, `bamboo`, `clean`, `parchment`, `night` |
+| `vueGreenMarkdown.fontSize` | 14px | Integer, 10–32px |
+| `vueGreenMarkdown.tableRowHeight` | 36px | Integer, 24–120px |
+| `vueGreenMarkdown.horizontalMarginMode` | `theme` | `theme` or `custom` |
+| `vueGreenMarkdown.horizontalMargin` | 0px | Number, 0–320px; decimals allowed |
+| `vueGreenMarkdown.verticalMarginMode` | `theme` | `theme` or `custom` |
+| `vueGreenMarkdown.verticalMargin` | 0px | Number, 0–320px; decimals allowed |
 
-例如，为小说启用暖纸主题：
+For example, use the warm-paper theme with 24px horizontal padding and no vertical padding:
 
 ```json
 {
   "vueGreenMarkdown.theme": "paper",
-  "vueGreenMarkdown.fontSize": 16,
-  "vueGreenMarkdown.tableRowHeight": 32,
-  "vueGreenMarkdown.horizontalMargin": 96,
-  "vueGreenMarkdown.verticalMargin": 48
+  "vueGreenMarkdown.horizontalMarginMode": "custom",
+  "vueGreenMarkdown.horizontalMargin": 24,
+  "vueGreenMarkdown.verticalMarginMode": "custom",
+  "vueGreenMarkdown.verticalMargin": 0
 }
 ```
 
-标题与代码字号按正文设置缩放。页边距单位为 px；设为 0 时保留原有各主题及窄窗口的留白，上下默认值可以不同。自定义左右边距在窄预览窗口中最多占窗口宽度的 10%，避免挤出正文。页边距仅影响屏幕预览，不改变打印布局。切换主题保留字号、行高与页边距，也保留侧边栏中尚未应用的修改。**恢复默认**恢复 Vue 文档主题、14px 正文、36px 表格行高和主题默认页边距。
+The text column has no fixed maximum width: it fills the available preview window. **Theme default** uses each theme's built-in padding. **Custom** applies the pixel value, including a true `0px`. In narrow previews, custom horizontal padding is capped at 10% of the viewport width to keep content visible. Padding affects screen previews only; print margins are unchanged. Wide tables and code blocks can scroll horizontally, while images remain within their container.
 
-表格文字与行内代码不自动换行，宽表格可横向滚动。行高是最小高度；显式 `<br>` 换行、图片或较高内容仍会撑高行。
+For compatibility, existing 0.3.1 margin values retain their previous meaning until you select a mode: `0` means theme default and positive values remain custom. Applying settings in the sidebar saves an explicit mode. Changing themes keeps font, table, and padding settings, including pending sidebar edits. **Restore Defaults** restores the Vue theme, 14px body font, 36px table rows, and theme-default padding.
 
-设置支持用户、工作区和文件夹范围。侧边栏跟随最近激活的 Markdown 文件，并显示保存位置；任意一项已有工作区或文件夹设置时，侧边栏在最具体的已有范围保存，否则保存到用户设置。每个预览按自己的文件读取设置。
+The sidebar saves at the most specific existing scope: folder, workspace, or user. You can also edit the settings in VS Code's Settings UI or `settings.json`. Changes refresh open previews automatically.
 
-## 升级与兼容
+## Compatibility and privacy
 
-原 **Vue Green Markdown Preview** 更名为 **阅境 Markdown**。扩展 ID `zenoschen.vue-theme-markdown` 与设置项前缀 `vueGreenMarkdown` 保持兼容，现有用户可以直接升级并保留设置。未配置新主题时继续使用 Vue 文档主题。
+The former **Vue Green Markdown Preview** is now **Yuejing Markdown**. Extension ID `zenoschen.vue-theme-markdown` and setting prefix `vueGreenMarkdown` are unchanged. Existing installations can upgrade without losing their settings. If another extension also contributes Markdown preview styles, the final appearance may depend on style load order.
 
-扩展作用于 VS Code 内置 Markdown 预览；其他扩展同时贡献预览样式时，最终样式可能受加载顺序影响。
+Everything runs locally. The extension stores VS Code settings and refreshes previews; it does not collect data, make network requests, or modify Markdown source files.
 
-## 自定义块
+## Development
 
-保留 `.custom-block.tip`、`.custom-block.warning`、`.custom-block.danger`、`.custom-block.info` 和 `.markdown-alert` 等样式。自定义语法的 HTML 渲染仍由相应 Markdown 扩展提供。
+Run `npm ci` to install development dependencies. Then:
 
-## 隐私
+- `npm test` checks configuration, localization, Markdown rendering, and sidebar saves.
+- `npm run test:layout` checks actual geometry, themes, narrow previews, tables, printing, and sidebar behavior in Chrome. Set `CHROME_EXECUTABLE` if Chrome is elsewhere.
+- `npm run test:integration` checks activation, configuration scopes, rendering, and preview commands in an isolated VS Code test profile. `VSCODE_EXECUTABLE`, `VSCODE_TEST_DATA_DIR`, and `VSCODE_TEST_LOCALE` can override the executable, test-data location, and UI language.
+- `npm run package` builds a VSIX for local inspection.
 
-所有主题与控制逻辑均在本地运行。扩展保存 VS Code 配置并刷新预览，不收集数据、不发起网络请求，也不修改 Markdown 文件内容。
-
-## 开发
-
-运行 `npm ci` 安装开发依赖。
-
-- `npm test`：设置校验、配置范围、Markdown 渲染与侧边栏保存测试。
-- `npm run test:layout`：Chrome 中验证小说主题、深浅色与高对比度、窄窗口、表格、打印和侧边栏交互。Chrome 不在 macOS 默认位置时，设置 `CHROME_EXECUTABLE`。
-- `npm run test:integration`：在独立的 VS Code 测试配置中验证激活、主题、字号与页边距设置、持久化和预览。可设置 `VSCODE_EXECUTABLE` 指向已安装的程序；工作目录较长时可设置 `VSCODE_TEST_DATA_DIR` 指向较短的临时路径。
-- `npm run package`：生成 VSIX。
-
-## 许可证
-
-MIT，详见随扩展提供的 `LICENSE`。
+Licensed under MIT; see [LICENSE](LICENSE).

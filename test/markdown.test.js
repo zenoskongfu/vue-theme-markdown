@@ -51,6 +51,21 @@ test('cached tokens use changed settings and the current preview resource', () =
   assert.deepEqual(resources, ['first.md', 'second.md']);
 });
 
+test('page margin settings update cached previews and omit unsafe or default values', () => {
+  let margins = { horizontalMargin: 0, verticalMargin: 0 };
+  const md = extendMarkdownIt(new MarkdownIt(), () => ({ theme: 'vue', fontSize: 14, tableRowHeight: 36, ...margins }));
+  const tokens = md.parse(source, {});
+  let html = md.renderer.render(tokens, md.options, {});
+  assert.doesNotMatch(html, /--vue-preview-margin-/);
+  margins = { horizontalMargin: 180, verticalMargin: 64 };
+  html = md.renderer.render(tokens, md.options, {});
+  assert.match(html, /--vue-preview-margin-horizontal:180px;/);
+  assert.match(html, /--vue-preview-margin-vertical:64px;/);
+  margins = { horizontalMargin: '1px;</style><script>', verticalMargin: 321 };
+  html = md.renderer.render(tokens, md.options, {});
+  assert.doesNotMatch(html, /--vue-preview-margin-|<script>/);
+});
+
 test('registering twice does not add duplicate style elements', () => {
   const md = new MarkdownIt();
   const settings = () => ({ fontSize: 14, tableRowHeight: 36 });

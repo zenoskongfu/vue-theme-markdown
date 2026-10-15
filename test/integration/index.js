@@ -14,7 +14,7 @@ async function run() {
   await vscode.window.showTextDocument(document);
   const config = vscode.workspace.getConfiguration('vueGreenMarkdown', resource);
   assert.equal(extension.packageJSON.displayName, '阅境 Markdown');
-  const original = Object.fromEntries(['theme', 'fontSize', 'tableRowHeight'].map(key => [key, {
+  const original = Object.fromEntries(['theme', 'fontSize', 'tableRowHeight', 'horizontalMargin', 'verticalMargin'].map(key => [key, {
     global: config.inspect(key).globalValue,
     workspace: config.inspect(key).workspaceValue,
     folder: config.inspect(key).workspaceFolderValue,
@@ -23,9 +23,13 @@ async function run() {
     await config.update('theme', 'paper', vscode.ConfigurationTarget.Global);
     await config.update('fontSize', 13, vscode.ConfigurationTarget.Global);
     await config.update('tableRowHeight', 30, vscode.ConfigurationTarget.Global);
+    await config.update('horizontalMargin', 96, vscode.ConfigurationTarget.Global);
+    await config.update('verticalMargin', 48, vscode.ConfigurationTarget.Global);
     let html = await vscode.commands.executeCommand('markdown.api.render', document.getText());
     assert.match(html, /--vue-font-size:13px/);
     assert.match(html, /--vue-table-row-height:30px/);
+    assert.match(html, /--vue-preview-margin-horizontal:96px/);
+    assert.match(html, /--vue-preview-margin-vertical:48px/);
     assert.match(html, /--vue-bg:#f6f1e7/);
     assert.match(html, /<table\b/);
 
@@ -40,9 +44,11 @@ async function run() {
     html = md.render(document.getText(), { currentDocument: resource });
     assert.match(html, /--vue-font-size:12px/);
     await config.update('tableRowHeight', 28, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('horizontalMargin', 180, vscode.ConfigurationTarget.WorkspaceFolder);
     const tokens = md.parse(document.getText(), {});
     html = md.renderer.render(tokens, md.options, { currentDocument: resource });
     assert.match(html, /--vue-table-row-height:28px/);
+    assert.match(html, /--vue-preview-margin-horizontal:180px/);
     await config.update('theme', 'night', vscode.ConfigurationTarget.WorkspaceFolder);
     html = md.renderer.render(tokens, md.options, { currentDocument: resource });
     assert.match(html, /--vue-bg:#202124/);
@@ -55,6 +61,7 @@ async function run() {
     const persisted = Buffer.from(await vscode.workspace.fs.readFile(settingsFile)).toString();
     assert.match(persisted, /"vueGreenMarkdown.fontSize": 12/);
     assert.match(persisted, /"vueGreenMarkdown.tableRowHeight": 28/);
+    assert.match(persisted, /"vueGreenMarkdown.horizontalMargin": 180/);
     assert.match(persisted, /"vueGreenMarkdown.theme": "night"/);
     console.log('VS Code integration passed: activation, configuration scopes, persisted settings, rendered preview, and sidebar command.');
   } finally {

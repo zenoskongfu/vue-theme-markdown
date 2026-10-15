@@ -135,7 +135,7 @@ body.vscode-body {
   box-sizing: border-box;
   max-width: var(--vue-content-width);
   margin: 0 auto;
-  padding: 48px 56px 80px;
+  padding: var(--vue-preview-margin-vertical, 48px) min(var(--vue-preview-margin-horizontal, 56px), max(8px, calc(50vw - 140px))) var(--vue-preview-margin-vertical, 80px);
   color: var(--vue-text-1);
   background: var(--vue-bg);
   font-family:
@@ -779,7 +779,7 @@ svg[id^="mermaid"] {
 @media (max-width: 760px) {
   body,
   body.vscode-body {
-    padding: 28px 22px 56px;
+    padding: var(--vue-preview-margin-vertical, 28px) min(var(--vue-preview-margin-horizontal, 22px), 10vw) var(--vue-preview-margin-vertical, 56px);
   }
 
   h1 {

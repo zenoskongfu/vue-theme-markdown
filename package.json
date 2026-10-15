@@ -2,7 +2,7 @@
   "name": "vue-theme-markdown",
   "displayName": "阅境 Markdown",
   "description": "Novel reading themes and a Vue-inspired document theme for Markdown previews, with sidebar controls. 小说主题、字号与表格行高设置。",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "zenoschen",
   "author": "zenoschen",
   "icon": "images/icon.png",
@@ -65,6 +65,22 @@
           "maximum": 120,
           "scope": "resource",
           "description": "Minimum table row height in pixels. Cells stay on one line and wide tables scroll horizontally. Explicit line breaks and taller content can increase the height."
+        },
+        "vueGreenMarkdown.horizontalMargin": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 320,
+          "scope": "resource",
+          "description": "Markdown preview left and right page padding in pixels (1–320). Set to 0 to keep each theme's existing responsive default. In narrow previews, custom side padding is capped at 10% of the window width. Does not change print margins."
+        },
+        "vueGreenMarkdown.verticalMargin": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 320,
+          "scope": "resource",
+          "description": "Markdown preview top and bottom page padding in pixels (1–320). Set to 0 to keep each theme's existing top and bottom defaults. Does not change print margins."
         },
         "vueGreenMarkdown.theme": {
           "type": "string",

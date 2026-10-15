@@ -21,17 +21,28 @@ function api(values = {}, overrides = {}, folders = [{ name: 'docs' }]) {
 test('invalid configuration falls back to safe defaults without CSS injection', () => {
   for (const value of [undefined, null, NaN, Infinity, -1, 0, 999, '16', '14px;</style>', 14.5]) {
     assert.deepEqual(readSettings(api({ fontSize: value, tableRowHeight: value })), {
-      theme: 'vue', fontSize: 14, tableRowHeight: 36,
+      theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0,
     });
-    assert.throws(() => validateSettings({ fontSize: value, tableRowHeight: 36 }));
+    assert.throws(() => validateSettings({ theme: 'vue', fontSize: value, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 }));
   }
 });
 
 test('valid boundaries are accepted and only supported fields are returned', () => {
-  assert.deepEqual(validateSettings({ theme: 'paper', fontSize: 10, tableRowHeight: 24, other: true }), { theme: 'paper', fontSize: 10, tableRowHeight: 24 });
-  assert.deepEqual(validateSettings({ theme: 'night', fontSize: 32, tableRowHeight: 120 }), { theme: 'night', fontSize: 32, tableRowHeight: 120 });
+  assert.deepEqual(validateSettings({ theme: 'paper', fontSize: 10, tableRowHeight: 24, horizontalMargin: 0, verticalMargin: 0, other: true }), { theme: 'paper', fontSize: 10, tableRowHeight: 24, horizontalMargin: 0, verticalMargin: 0 });
+  assert.deepEqual(validateSettings({ theme: 'night', fontSize: 32, tableRowHeight: 120, horizontalMargin: 320, verticalMargin: 320 }), { theme: 'night', fontSize: 32, tableRowHeight: 120, horizontalMargin: 320, verticalMargin: 320 });
   assert.throws(() => validateSettings({ fontSize: 14 }));
   assert.throws(() => validateSettings(null));
+});
+
+test('invalid page margins fall back to theme defaults and cannot reach CSS', () => {
+  for (const value of [undefined, null, -1, 321, 12.5, '12', '12px;</style>', Infinity]) {
+    assert.deepEqual(readSettings(api({ horizontalMargin: value, verticalMargin: value })), {
+      theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0,
+    });
+    for (const key of ['horizontalMargin', 'verticalMargin']) {
+      assert.throws(() => validateSettings({ theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0, [key]: value }));
+    }
+  }
 });
 
 test('sidebar writes to the most specific existing scope, otherwise user settings', () => {
@@ -42,6 +53,7 @@ test('sidebar writes to the most specific existing scope, otherwise user setting
   }), {}).target, 3);
   assert.equal(getSaveTarget(api({}, { fontSize: { workspaceValue: 15 } }, null)).target, 1);
   assert.equal(getSaveTarget(api({}, { theme: { workspaceFolderValue: 'paper' } }), {}).target, 3);
+  assert.equal(getSaveTarget(api({}, { horizontalMargin: { workspaceValue: 80 } }), {}).target, 2);
 });
 
 test('only known theme identifiers are accepted; old installations retain Vue by default', () => {
@@ -52,7 +64,7 @@ test('only known theme identifiers are accepted; old installations retain Vue by
   for (const theme of THEMES) assert.equal(readSettings(api({ theme: theme.id })).theme, theme.id);
   for (const theme of [undefined, null, 'unknown', 'paper;</style><script>', '__proto__', {}, 1]) {
     assert.equal(readSettings(api({ theme })).theme, 'vue');
-    assert.throws(() => validateSettings({ theme, fontSize: 14, tableRowHeight: 36 }));
+    assert.throws(() => validateSettings({ theme, fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 }));
   }
 });
 

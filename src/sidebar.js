@@ -140,6 +140,22 @@ class SettingsViewProvider {
         </div>
         <p id="tableHelp" class="help">默认 36px。表格内容不自动换行，超出宽度可横向滚动。手动换行或图片会撑高行。</p>
       </div>
+      <div class="field">
+        <label for="horizontalMargin">左右页边距 <span>px</span></label>
+        <div class="controls">
+          <input id="horizontalMarginRange" type="range" min="0" max="320" step="1" value="0" aria-label="左右页边距">
+          <input id="horizontalMargin" type="number" min="0" max="320" step="1" value="0" required aria-describedby="horizontalMarginHelp">
+        </div>
+        <p id="horizontalMarginHelp" class="help">0 表示沿用主题默认留白；1–320px 自定义。窄窗口会限制左右留白，避免正文被挤出窗口。</p>
+      </div>
+      <div class="field">
+        <label for="verticalMargin">上下页边距 <span>px</span></label>
+        <div class="controls">
+          <input id="verticalMarginRange" type="range" min="0" max="320" step="1" value="0" aria-label="上下页边距">
+          <input id="verticalMargin" type="number" min="0" max="320" step="1" value="0" required aria-describedby="verticalMarginHelp">
+        </div>
+        <p id="verticalMarginHelp" class="help">0 表示沿用主题原有的上下留白；1–320px 会同时设置顶部和底部。仅影响预览，不改变打印页边距。</p>
+      </div>
       <p id="scope" class="context"></p>
       <div class="actions">
         <button type="submit">应用设置</button>

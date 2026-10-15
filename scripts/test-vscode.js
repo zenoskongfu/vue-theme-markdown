@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const { runTests } = require('@vscode/test-electron');
 
 const root = path.resolve(__dirname, '..');
+const testDataDir = process.env.VSCODE_TEST_DATA_DIR || path.join(root, 'work');
 const macExecutable = process.platform === 'darwin' ? ['Code', 'Electron']
   .map(name => `/Applications/Visual Studio Code.app/Contents/MacOS/${name}`)
   .find(file => fs.existsSync(file)) : undefined;
@@ -16,8 +17,8 @@ runTests({
   ...(executable ? { vscodeExecutablePath: executable } : {}),
   launchArgs: [
     path.join(root, 'test/fixtures'),
-    '--user-data-dir', path.join(root, 'work/vscode-test-profile'),
-    '--extensions-dir', path.join(root, 'work/vscode-test-extensions'),
+    '--user-data-dir', path.join(testDataDir, 'vscode-test-profile'),
+    '--extensions-dir', path.join(testDataDir, 'vscode-test-extensions'),
     '--disable-extensions',
     '--skip-welcome',
     '--skip-release-notes',

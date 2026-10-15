@@ -3,7 +3,7 @@ body.vscode-body {
   color-scheme: var(--reading-color-scheme);
   font-family: var(--reading-font);
   line-height: var(--reading-line-height);
-  padding: 56px 60px 96px;
+  padding: var(--vue-preview-margin-vertical, 56px) min(var(--vue-preview-margin-horizontal, 60px), max(8px, calc(50vw - 140px))) var(--vue-preview-margin-vertical, 96px);
   letter-spacing: 0.015em;
 }
 
@@ -108,7 +108,7 @@ body.vscode-body.vscode-high-contrast-light {
 }
 
 @media (max-width: 760px) {
-  body.vscode-body { padding: 32px 24px 64px; }
+  body.vscode-body { padding: var(--vue-preview-margin-vertical, 32px) min(var(--vue-preview-margin-horizontal, 24px), 10vw) var(--vue-preview-margin-vertical, 64px); }
   body.vscode-body h1 { font-size: 1.5rem; }
   body.vscode-body h2 { font-size: 1.3rem; }
 }

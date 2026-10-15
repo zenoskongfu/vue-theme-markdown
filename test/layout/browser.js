@@ -17,6 +17,45 @@ const executablePath = process.env.CHROME_EXECUTABLE || '/Applications/Google Ch
 const { THEMES } = require('../../src/themes');
 const novelSource = fs.readFileSync(path.join(root, 'test/fixtures/novel.md'), 'utf8');
 
+test('page margins keep theme defaults, respond to settings, and fit narrow previews', async () => {
+  const browser = await chromium.launch({ executablePath, headless: true });
+  try {
+    const page = await browser.newPage();
+    for (const [theme, desktop, narrow] of [
+      ['vue', [48, 56, 80], [28, 22, 56]],
+      ['paper', [56, 60, 96], [32, 24, 64]],
+    ]) {
+      for (const [width, margins, expected] of [
+        [1100, [0, 0], desktop],
+        [420, [0, 0], narrow],
+        [1100, [240, 70], [70, 240, 70]],
+        [761, [320, 70], [70, 240.5, 70]],
+        [420, [240, 70], [70, 42, 70]],
+      ]) {
+        await page.setViewportSize({ width, height: 900 });
+        const md = extendMarkdownIt(new MarkdownIt(), () => ({ theme, fontSize: 14, tableRowHeight: 36, horizontalMargin: margins[0], verticalMargin: margins[1] }));
+        await page.setContent(`<html><head><style>${hostCss}</style><style>${css}</style></head><body class="vscode-body vscode-light">${md.render('# Title\n\nA paragraph for measuring the preview page.')}</body></html>`);
+        const metrics = await page.evaluate(() => {
+          const body = getComputedStyle(document.body);
+          return {
+            padding: [body.paddingTop, body.paddingRight, body.paddingBottom, body.paddingLeft].map(parseFloat),
+            overflow: document.documentElement.scrollWidth > innerWidth,
+          };
+        });
+        assert.deepEqual(metrics.padding, [expected[0], expected[1], expected[2], expected[1]], `${theme} at ${width}px`);
+        assert.equal(metrics.overflow, false);
+        if (margins[0]) {
+          await page.emulateMedia({ media: 'print' });
+          assert.equal(await page.$eval('body', body => getComputedStyle(body).padding), '0px');
+          await page.emulateMedia({ media: 'screen' });
+        }
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
 test('preview sizes scale, table text stays single-line, and wide tables scroll', async () => {
   const browser = await chromium.launch({ executablePath, headless: true });
   try {
@@ -177,7 +216,7 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
         : { contentType: asset.endsWith('.css') ? 'text/css' : 'text/javascript', body: fs.readFileSync(path.join(root, asset.slice(1)), 'utf8') });
     });
     await page.addInitScript(() => {
-      window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36 };
+      window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 };
       window.readingRequests = [];
       const state = () => ({ settings: { ...window.readingSettings }, resource: 'file:///novel.md', file: 'novel.md', scope: '用户设置' });
       window.acquireVsCodeApi = () => ({ postMessage: request => {
@@ -187,7 +226,7 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
           return window.postMessage({ type: 'error', action: 'theme', message: 'Cannot save theme', ...state() }, '*');
         }
         if (request.type === 'theme') window.readingSettings.theme = request.theme;
-        else if (request.type === 'reset') window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36 };
+        else if (request.type === 'reset') window.readingSettings = { theme: 'vue', fontSize: 14, tableRowHeight: 36, horizontalMargin: 0, verticalMargin: 0 };
         else window.readingSettings = request.settings;
         window.postMessage({ type: 'saved', action: request.type, ...state() }, '*');
       } });
@@ -197,9 +236,13 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
     assert.equal(await page.locator('h1').innerText(), '阅境 Markdown');
     assert.equal(await page.locator('.theme-choice').count(), 6);
     await page.locator('#fontSize').fill('20');
+    await page.locator('#horizontalMargin').fill('240');
+    await page.locator('#verticalMargin').fill('70');
     await page.getByText('暖纸', { exact: true }).click();
     await page.waitForFunction(() => !document.querySelector('fieldset').disabled && window.readingSettings.theme === 'paper');
     assert.equal(await page.locator('#fontSize').inputValue(), '20');
+    assert.equal(await page.locator('#horizontalMargin').inputValue(), '240');
+    assert.equal(await page.locator('#verticalMargin').inputValue(), '70');
     assert.equal(await page.evaluate(() => window.readingSettings.fontSize), 14);
     assert.match(await page.locator('#status').innerText(), /仍待应用/);
     await page.evaluate(() => { window.failTheme = true; });
@@ -207,11 +250,14 @@ test('sidebar theme cards persist immediately while preserving unsaved sizing ed
     await page.waitForFunction(() => document.querySelector('#status').textContent === 'Cannot save theme');
     assert.equal(await page.locator('#theme-paper').isChecked(), true);
     assert.equal(await page.locator('#fontSize').inputValue(), '20');
+    assert.equal(await page.locator('#horizontalMargin').inputValue(), '240');
     await page.getByRole('button', { name: '应用设置' }).click();
-    await page.waitForFunction(() => !document.querySelector('fieldset').disabled && window.readingSettings.fontSize === 20);
+    await page.waitForFunction(() => !document.querySelector('fieldset').disabled && window.readingSettings.fontSize === 20 && window.readingSettings.horizontalMargin === 240 && window.readingSettings.verticalMargin === 70);
     await page.getByRole('button', { name: '恢复默认' }).click();
     await page.waitForFunction(() => !document.querySelector('fieldset').disabled && window.readingSettings.theme === 'vue');
     assert.equal(await page.locator('#fontSize').inputValue(), '14');
+    assert.equal(await page.locator('#horizontalMargin').inputValue(), '0');
+    assert.equal(await page.locator('#verticalMargin').inputValue(), '0');
     assert.equal(await page.locator('#theme-vue').isChecked(), true);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     assert.deepEqual(errors, []);

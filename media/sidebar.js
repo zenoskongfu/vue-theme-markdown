@@ -4,7 +4,7 @@
   const form = document.getElementById('settings');
   const fieldset = form.querySelector('fieldset');
   const status = document.getElementById('status');
-  const keys = ['fontSize', 'tableRowHeight'];
+  const keys = ['fontSize', 'tableRowHeight', 'horizontalMargin', 'verticalMargin'];
   let resource = null;
   let dirty = false;
   let saving = false;
@@ -88,8 +88,8 @@
       fieldset.disabled = false;
       populate(message, message.action === 'theme' && dirty && !changedFile);
       const themeName = document.getElementById(`theme-${message.settings.theme}`).dataset.name;
-      const saved = message.action === 'theme' ? `已切换为“${themeName}”。${dirty ? '字号和行高的修改仍待应用。' : '预览正在刷新。'}`
-        : message.action === 'reset' ? '已恢复 Vue 文档主题、14px 字号和 36px 行高。' : '已保存，正在刷新预览。';
+      const saved = message.action === 'theme' ? `已切换为“${themeName}”。${dirty ? '阅读设置的修改仍待应用。' : '预览正在刷新。'}`
+        : message.action === 'reset' ? '已恢复 Vue 文档主题、14px 字号、36px 行高和主题默认页边距。' : '已保存，正在刷新预览。';
       showStatus(message.type === 'error' ? message.message : saved, message.type === 'error');
     }
   });

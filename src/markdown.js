@@ -1,6 +1,7 @@
 'use strict';
 
 const { DEFAULT_THEME, isTheme, getThemeCss } = require('./themes');
+const { isValid } = require('./settings');
 const extended = new WeakSet();
 
 function extendMarkdownIt(md, getSettings) {
@@ -27,7 +28,10 @@ function extendMarkdownIt(md, getSettings) {
   md.renderer.render = function (tokens, options, env) {
     // Read during rendering, rather than parsing: VS Code caches parsed tokens.
     const settings = getSettings(env?.currentDocument);
-    const styles = `<style id="vue-green-markdown-settings">:root{--vue-font-size:${settings.fontSize}px;--vue-table-row-height:${settings.tableRowHeight}px;}${getThemeCss(settings.theme)}</style>\n`;
+    const margins = [['horizontalMargin', '--vue-preview-margin-horizontal'], ['verticalMargin', '--vue-preview-margin-vertical']]
+      .filter(([key]) => isValid(key, settings[key]) && settings[key] > 0)
+      .map(([key, cssName]) => `${cssName}:${settings[key]}px;`).join('');
+    const styles = `<style id="vue-green-markdown-settings">:root{--vue-font-size:${settings.fontSize}px;--vue-table-row-height:${settings.tableRowHeight}px;${margins}}${getThemeCss(settings.theme)}</style>\n`;
     const previous = novel;
     novel = isTheme(settings.theme) && settings.theme !== DEFAULT_THEME;
     try {

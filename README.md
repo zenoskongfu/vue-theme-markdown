@@ -1,13 +1,13 @@
 # 阅境 Markdown · Reading Realm
 
-在 VS Code 的内置 Markdown 预览中阅读小说，也能查看普通文档。提供五套小说阅读主题和原有的 Vue 文档主题，在侧边栏切换主题、设置字号与表格行高。
+在 VS Code 的内置 Markdown 预览中阅读小说，也能查看普通文档。提供五套小说阅读主题和原有的 Vue 文档主题，在侧边栏切换主题、设置字号、表格行高与页边距。
 
 ## 使用
 
 1. 安装并启用扩展，打开一个 Markdown 文件。
 2. 使用 **Markdown: Open Preview** 打开预览（macOS：`Cmd+Shift+V`；Windows/Linux：`Ctrl+Shift+V`）。
 3. 点击活动栏的书本图标 **阅境 Markdown**，或运行 **阅境 Markdown: 打开阅读设置**。
-4. 点击主题卡片即可保存并刷新预览。字号与表格行高可通过滑块或数字框调整，再点击 **应用设置**。
+4. 点击主题卡片即可保存并刷新预览。字号、表格行高与页边距可通过滑块或数字框调整，再点击 **应用设置**。设置变化会自动刷新已打开的预览。
 
 ## 阅读主题
 
@@ -33,6 +33,8 @@
 | `vueGreenMarkdown.theme` | `vue` | `vue`、`paper`、`bamboo`、`clean`、`parchment`、`night` |
 | `vueGreenMarkdown.fontSize` | 14px | 10–32px |
 | `vueGreenMarkdown.tableRowHeight` | 36px | 24–120px |
+| `vueGreenMarkdown.horizontalMargin` | 0（沿用主题默认） | 0–320px；自定义值为左右留白 |
+| `vueGreenMarkdown.verticalMargin` | 0（沿用主题默认） | 0–320px；自定义值同时用于上下留白 |
 
 例如，为小说启用暖纸主题：
 
@@ -40,11 +42,13 @@
 {
   "vueGreenMarkdown.theme": "paper",
   "vueGreenMarkdown.fontSize": 16,
-  "vueGreenMarkdown.tableRowHeight": 32
+  "vueGreenMarkdown.tableRowHeight": 32,
+  "vueGreenMarkdown.horizontalMargin": 96,
+  "vueGreenMarkdown.verticalMargin": 48
 }
 ```
 
-标题与代码字号按正文设置缩放。切换主题保留字号与行高，也保留侧边栏中尚未应用的字号修改。**恢复默认**恢复 Vue 文档主题、14px 正文和 36px 表格行高。
+标题与代码字号按正文设置缩放。页边距单位为 px；设为 0 时保留原有各主题及窄窗口的留白，上下默认值可以不同。自定义左右边距在窄预览窗口中最多占窗口宽度的 10%，避免挤出正文。页边距仅影响屏幕预览，不改变打印布局。切换主题保留字号、行高与页边距，也保留侧边栏中尚未应用的修改。**恢复默认**恢复 Vue 文档主题、14px 正文、36px 表格行高和主题默认页边距。
 
 表格文字与行内代码不自动换行，宽表格可横向滚动。行高是最小高度；显式 `<br>` 换行、图片或较高内容仍会撑高行。
 
@@ -70,7 +74,7 @@
 
 - `npm test`：设置校验、配置范围、Markdown 渲染与侧边栏保存测试。
 - `npm run test:layout`：Chrome 中验证小说主题、深浅色与高对比度、窄窗口、表格、打印和侧边栏交互。Chrome 不在 macOS 默认位置时，设置 `CHROME_EXECUTABLE`。
-- `npm run test:integration`：在真实 VS Code 中验证激活、主题与字号设置、持久化和预览。可设置 `VSCODE_EXECUTABLE` 指向已安装的程序。
+- `npm run test:integration`：在独立的 VS Code 测试配置中验证激活、主题、字号与页边距设置、持久化和预览。可设置 `VSCODE_EXECUTABLE` 指向已安装的程序；工作目录较长时可设置 `VSCODE_TEST_DATA_DIR` 指向较短的临时路径。
 - `npm run package`：生成 VSIX。
 
 ## 许可证

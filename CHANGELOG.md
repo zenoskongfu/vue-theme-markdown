@@ -2,6 +2,12 @@
 
 All notable changes to this extension are documented here.
 
+## 0.3.1 - 2026-10-15
+
+- Added horizontal and vertical Markdown preview page margin controls to the reading sidebar and VS Code settings.
+- Kept each theme's original page spacing when margin settings remain at 0, including narrow preview widths.
+- Capped custom horizontal spacing in narrow previews and left print margins unchanged.
+
 ## 0.3.0 - 2026-10-10
 
 - Renamed the extension to 阅境 Markdown (Reading Realm), retaining its extension ID and existing settings.
